@@ -1,0 +1,67 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.add-to-chat-box {
+    position: absolute;
+    background: #2196f3;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    display: none;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    font-family: "JetBrains Mono", monospace;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    pointer-events: auto;
+    user-select: none;
+}
+
+.add-to-chat-box:hover {
+    background: #1976d2;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+}
+
+.ask-chat-button {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    background: #ff4081;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    display: none;
+    z-index: 1000;
+    border: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.ask-chat-button:hover {
+    background: #e91e63;
+}
+
+.chat-input {
+    width: 100%;
+    min-height: 40px;
+    max-height: 200px;
+    padding: 8px;
+    margin-bottom: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 14px;
+    resize: none;
+    overflow-y: auto;
+    box-sizing: border-box;
+    line-height: 1.4;
+}
