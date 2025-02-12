@@ -222,18 +222,28 @@ chatStyles.textContent = `
         flex-direction: column;
     }
 
+    /**
+     * Diff Preview State Styles
+     * ------------------------
+     * Styles for different states of the diff preview (active/inactive)
+     */
     .composer-diff-preview.inactive {
-        opacity: 0.7;
+        opacity: 0.7;          /* Dims inactive diffs */
     }
 
     .composer-diff-preview.inactive .composer-diff-header {
-        background: #252525;
+        background: #252525;   /* Darker background for inactive headers */
     }
 
     .composer-diff-preview.inactive .composer-diff-content {
-        pointer-events: none;
+        pointer-events: none;  /* Prevents interaction with inactive diffs */
     }
 
+    /**
+     * Diff Header Styles
+     * -----------------
+     * Styles for the header section of diff previews
+     */
     .composer-diff-header {
         padding: 8px;
         border-bottom: 1px solid #3c3c3c;
@@ -241,12 +251,17 @@ chatStyles.textContent = `
         justify-content: space-between;
         align-items: center;
         background: #2d2d2d;
-        position: sticky;
+        position: sticky;      /* Keeps header visible while scrolling */
         top: 0;
         z-index: 1;
-        flex-shrink: 0;
+        flex-shrink: 0;       /* Prevents header from shrinking */
     }
 
+    /**
+     * Diff Legend Styles
+     * -----------------
+     * Styles for the color-coded legend showing added/removed lines
+     */
     .composer-diff-legend {
         display: flex;
         gap: 15px;
@@ -254,60 +269,80 @@ chatStyles.textContent = `
     }
 
     .composer-diff-legend span::before {
-        content: '●';
+        content: '●';         /* Bullet point for legend items */
         margin-right: 4px;
     }
 
     .added-legend::before {
-        color: #4CAF50;
+        color: #4CAF50;       /* Green for additions */
     }
 
     .removed-legend::before {
-        color: #f44336;
+        color: #f44336;       /* Red for removals */
     }
 
+    /**
+     * Diff Content Area Styles
+     * -----------------------
+     * Styles for the main content area showing code differences
+     */
     .composer-diff-content {
         padding: 8px;
-        font-family: 'JetBrains Mono', monospace;
+        font-family: 'JetBrains Mono', monospace;  /* Monospace font for code */
         font-size: 13px;
-        overflow-x: auto;
-        flex-grow: 1;
+        overflow-x: auto;     /* Horizontal scroll for long lines */
+        flex-grow: 1;         /* Takes remaining vertical space */
         background: #1e1e1e;
         height: calc(100% - 80px);
         overflow-y: scroll;
         min-height: 0;
     }
 
+    /**
+     * Diff Line Styles
+     * ---------------
+     * Styles for individual lines in the diff view
+     */
     .composer-diff-line {
         padding: 4px 8px;
-        white-space: pre;
+        white-space: pre;     /* Preserves whitespace in code */
         font-family: 'JetBrains Mono', monospace;
         line-height: 1.6;
     }
 
     .composer-diff-line.added {
-        background: rgba(76, 175, 80, 0.2);
-        border-left: 3px solid #4CAF50;
+        background: rgba(76, 175, 80, 0.2);    /* Semi-transparent green */
+        border-left: 3px solid #4CAF50;        /* Green indicator for additions */
     }
 
     .composer-diff-line.removed {
-        background: rgba(244, 67, 54, 0.2);
-        border-left: 3px solid #f44336;
+        background: rgba(244, 67, 54, 0.2);    /* Semi-transparent red */
+        border-left: 3px solid #f44336;        /* Red indicator for removals */
     }
 
+    /**
+     * Diff Action Buttons Container
+     * ---------------------------
+     * Container for action buttons (accept/reject/view) at the bottom of diff preview
+     */
     .composer-diff-actions {
         padding: 8px;
         display: flex;
         gap: 8px;
         justify-content: flex-end;
-        border-top: 1px solid #3c3c3c;
+        border-top: 1px solid #3c3c3c;    /* Separator line */
         background: #2d2d2d;
-        position: sticky;
+        position: sticky;                  /* Keeps actions visible while scrolling */
         bottom: 0;
         z-index: 1;
-        flex-shrink: 0;
+        flex-shrink: 0;                   /* Prevents shrinking */
     }
 
+    /**
+     * Action Button Base Styles
+     * -----------------------
+     * Common styles for all action buttons
+     */
     .composer-diff-actions button {
         padding: 6px 12px;
         border-radius: 4px;
@@ -316,62 +351,85 @@ chatStyles.textContent = `
         font-size: 12px;
     }
 
+    /**
+     * View Source Button Styles
+     * -----------------------
+     * Specific styles for the "View in Source" button
+     */
     .composer-diff-actions button.view-source {
-        background: #0e639c;
+        background: #0e639c;              /* Blue for view action */
         color: white;
     }
 
     .composer-diff-actions button.view-source:hover {
-        background: #1177bb;
+        background: #1177bb;              /* Lighter blue on hover */
     }
 
+    /**
+     * Accept/Revert Button Styles
+     * -------------------------
+     * Styles for accept and revert states of the accept button
+     */
     .composer-diff-actions button.accept {
-        background: #4CAF50;
+        background: #4CAF50;              /* Green for accept action */
         color: white;
     }
 
     .composer-diff-actions button.accept:hover {
-        background: #45a049;
+        background: #45a049;              /* Darker green on hover */
     }
 
     .composer-diff-actions button.accept.revert {
-        background: #0e639c;
+        background: #0e639c;              /* Blue for revert state */
     }
 
     .composer-diff-actions button.accept.revert:hover {
-        background: #1177bb;
+        background: #1177bb;              /* Lighter blue on hover */
     }
 
+    /**
+     * Reject Button Styles
+     * ------------------
+     * Styles for the reject button
+     */
     .composer-diff-actions button.reject {
-        background: #f44336;
+        background: #f44336;              /* Red for reject action */
         color: white;
     }
 
     .composer-diff-actions button.reject:hover {
-        background: #da190b;
+        background: #da190b;              /* Darker red on hover */
     }
 
-    /* Source editor diff styles */
+    /**
+     * Source Editor Diff Styles
+     * -----------------------
+     * Styles for diff highlighting in the source editor
+     */
     .diff-line-addition {
-        background: rgba(76, 175, 80, 0.2) !important;
+        background: rgba(76, 175, 80, 0.2) !important;  /* Semi-transparent green */
     }
     
     .diff-line-deletion {
-        background: rgba(244, 67, 54, 0.2) !important;
+        background: rgba(244, 67, 54, 0.2) !important;  /* Semi-transparent red */
         opacity: 0.7 !important;
     }
     
     .diff-gutter-addition {
-        border-left: 3px solid #4CAF50 !important;
+        border-left: 3px solid #4CAF50 !important;      /* Green indicator */
         margin-left: 3px;
     }
     
     .diff-gutter-deletion {
-        border-left: 3px solid #f44336 !important;
+        border-left: 3px solid #f44336 !important;      /* Red indicator */
         margin-left: 3px;
     }
 
-    /* Status indicator styles */
+    /**
+     * Status Indicator Styles
+     * ---------------------
+     * Styles for showing the current status of diff actions
+     */
     .composer-diff-status {
         padding: 6px 12px;
         border-radius: 4px;
@@ -381,22 +439,30 @@ chatStyles.textContent = `
     }
 
     .composer-diff-status.accepted {
-        background: rgba(76, 175, 80, 0.2);
+        background: rgba(76, 175, 80, 0.2);     /* Semi-transparent green */
         color: #4CAF50;
     }
 
     .composer-diff-status.rejected {
-        background: rgba(244, 67, 54, 0.2);
+        background: rgba(244, 67, 54, 0.2);     /* Semi-transparent red */
         color: #f44336;
     }
 
-    /* Disabled button styles */
+    /**
+     * Disabled Button States
+     * --------------------
+     * Styles for buttons in disabled state
+     */
     .composer-diff-actions button:disabled {
         opacity: 0.5;
         cursor: not-allowed;
     }
 
-    /* Floating review button styles */
+    /**
+     * Floating Review Button
+     * --------------------
+     * Styles for the floating review button in source view
+     */
     .floating-review-button {
         position: absolute;
         top: 10px;
@@ -410,21 +476,25 @@ chatStyles.textContent = `
         font-family: 'JetBrains Mono', monospace;
         font-size: 12px;
         z-index: 1000;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);   /* Drop shadow for depth */
     }
 
     .floating-review-button:hover {
         background: #1177bb;
     }
 
-    /* Review modal styles */
+    /**
+     * Review Modal Styles
+     * -----------------
+     * Styles for the review modal overlay and container
+     */
     .review-modal-overlay {
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.7);
+        background: rgba(0, 0, 0, 0.7);          /* Semi-transparent overlay */
         z-index: 9999;
         display: flex;
         justify-content: center;
@@ -434,14 +504,19 @@ chatStyles.textContent = `
     .review-modal {
         background: #1e1e1e;
         border-radius: 6px;
-        width: 90vw;
-        height: 90vh;
+        width: 90vw;                             /* 90% of viewport width */
+        height: 90vh;                            /* 90% of viewport height */
         display: flex;
         flex-direction: column;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
         overflow: hidden;
     }
 
+    /**
+     * Review Modal Header Styles
+     * ------------------------
+     * Styles for the header section of the review modal
+     */
     .review-modal-header {
         display: flex;
         justify-content: space-between;
@@ -451,12 +526,22 @@ chatStyles.textContent = `
         border-bottom: 1px solid #333;
     }
 
+    /**
+     * Review Modal Title
+     * ----------------
+     * Styles for the modal title text
+     */
     .review-modal-title {
         font-size: 18px;
         font-weight: 500;
         color: #fff;
     }
 
+    /**
+     * Close Button Styles
+     * -----------------
+     * Styles for the modal close button
+     */
     .review-modal-close {
         background: none;
         border: none;
@@ -464,14 +549,19 @@ chatStyles.textContent = `
         font-size: 24px;
         cursor: pointer;
         padding: 0 8px;
-        opacity: 0.7;
-        transition: opacity 0.2s;
+        opacity: 0.7;                /* Slightly dimmed by default */
+        transition: opacity 0.2s;     /* Smooth opacity transition */
     }
 
     .review-modal-close:hover {
-        opacity: 1;
+        opacity: 1;                  /* Full opacity on hover */
     }
 
+    /**
+     * View Toggle Button
+     * ----------------
+     * Styles for the button that toggles between inline and side-by-side views
+     */
     .review-modal-toggle {
         background: #0e639c;
         color: white;
@@ -487,21 +577,36 @@ chatStyles.textContent = `
         background: #1177bb;
     }
 
+    /**
+     * Side-by-Side View Content
+     * ------------------------
+     * Styles for the side-by-side diff view layout
+     */
     .review-modal-content.side-by-side {
         display: flex;
         gap: 12px;
         padding: 24px;
         flex: 1;
-        min-height: 0;
+        min-height: 0;              /* Allows proper scrolling */
     }
 
+    /**
+     * Inline View Content
+     * -----------------
+     * Styles for the inline diff view layout
+     */
     .review-modal-content.inline {
-        display: none;
+        display: none;              /* Hidden by default */
         padding: 24px;
         flex: 1;
         min-height: 0;
     }
 
+    /**
+     * Editor Container Styles
+     * ---------------------
+     * Styles for the containers holding the code editors
+     */
     .review-editor-container {
         flex: 1;
         display: flex;
@@ -510,6 +615,11 @@ chatStyles.textContent = `
         height: 100%;
     }
 
+    /**
+     * Editor Title Styles
+     * -----------------
+     * Styles for the titles above each editor
+     */
     .review-editor-title {
         font-size: 14px;
         font-weight: 500;
@@ -518,6 +628,11 @@ chatStyles.textContent = `
         padding: 0 16px;
     }
 
+    /**
+     * Editor Instance Styles
+     * --------------------
+     * Styles for the Monaco editor instances
+     */
     .review-editor {
         flex: 1;
         border: 1px solid #3c3c3c;
@@ -531,28 +646,50 @@ chatStyles.textContent = `
 document.head.appendChild(chatStyles);
 
 /**
+ * Chat Message Management
+ * ---------------------
+ * Functions for handling chat messages and UI interactions
+ */
+
+/**
  * Adds a message to the composer chat UI
- * @param {string} message - The message text
- * @param {string} className - The CSS class for the message
+ * @param {string} message - The message text to be displayed
+ * @param {string} className - CSS class to determine message style (user/AI/error)
  */
 function addMessageToChat(message, className) {
+    // Get the container for all messages
     const messagesContainer = document.querySelector('.composer-chat-messages');
+    
+    // Create a new message element
     const messageDiv = document.createElement('div');
     messageDiv.className = `composer-message ${className}`;
     messageDiv.textContent = message;
+    
+    // Add the message to the container
     messagesContainer.appendChild(messageDiv);
+    
+    // Auto-scroll to the latest message
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
 /**
- * Cleans up the diff output by removing unnecessary lines and comments
+ * Diff Processing Functions
+ * -----------------------
+ * Utilities for handling code differences and formatting
+ */
+
+/**
+ * Cleans up the diff output by removing unnecessary lines and formatting
  * @param {Object} diff - The diff object to clean
  * @returns {Object} The cleaned diff object
  */
 function cleanDiffOutput(diff) {
     diff.hunks.forEach(hunk => {
+        // Filter out unnecessary lines and clean up formatting
         hunk.lines = hunk.lines
+            // Remove 'No newline' messages
             .filter(line => !line.includes('\\ No newline at end of file'))
+            // Clean up code block markers and other formatting
             .map(line => {
                 if (line.includes('```') || line.includes("I've") || line.includes('maintained')) {
                     return line.split('```')[0].split("I've")[0].trim();
@@ -567,13 +704,25 @@ function cleanDiffOutput(diff) {
  * Generates a diff between current and proposed code
  * @param {string} currentCode - The current source code
  * @param {string} proposedCode - The proposed code changes
- * @returns {Object} The diff object
+ * @returns {Object} The processed diff object
  */
 function generateDiff(currentCode, proposedCode) {
+    // Ensure both code blocks end with newlines for proper diffing
     if (!currentCode.endsWith('\n')) currentCode += '\n';
     if (!proposedCode.endsWith('\n')) proposedCode += '\n';
     
-    const diff = createTwoFilesPatch('current', 'proposed', currentCode, proposedCode, '', '', { context: 2 });
+    // Generate the diff using the diff library
+    const diff = createTwoFilesPatch(
+        'current',      // Original file label
+        'proposed',     // Modified file label
+        currentCode, 
+        proposedCode,
+        '',            // Header
+        '',            // Header
+        { context: 2 } // Show 2 lines of context
+    );
+    
+    // Clean and parse the diff
     return cleanDiffOutput(parsePatch(diff)[0]);
 }
 
