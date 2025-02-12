@@ -777,39 +777,47 @@ function prepareSourceDiffView(originalCode, diff) {
 }
 
 /**
- * Applies diff decorations to the source editor
- * @param {monaco.editor.IStandaloneCodeEditor} editor - The Monaco editor instance
- * @param {string} content - The content with diff markers
- * @returns {string[]} Array of decoration IDs
+ * Editor Decoration Management
+ * --------------------------
+ * This function applies visual decorations to the Monaco editor to highlight code changes.
+ * It handles both the visual styling of changed lines and the interaction behavior with deleted lines.
+ * 
+ * @param {monaco.editor.IStandaloneCodeEditor} editor - The Monaco editor instance to apply decorations to
+ * @param {string} content - The content with diff markers ('+' for additions, '-' for deletions)
+ * @returns {string[]} Array of decoration IDs that can be used to remove decorations later
  */
 function applyDiffDecorations(editor, content) {
+    // Split content into lines for processing
     const lines = content.split('\n');
     const decorations = [];
     let lineNumber = 1;
     
-    // Track which lines are deletion lines (to make them read-only)
+    // Track lines that have been deleted for making them read-only
     const deletionLines = new Set();
     
+    // Process each line to create appropriate decorations
     lines.forEach(line => {
         if (line.startsWith('+')) {
+            // Addition decoration - green background and gutter marker
             decorations.push({
                 range: new monaco.Range(lineNumber, 1, lineNumber, 1),
                 options: {
-                    isWholeLine: true,
-                    className: 'diff-line-addition',
-                    glyphMarginClassName: 'diff-gutter-addition'
+                    isWholeLine: true,                    // Highlight entire line
+                    className: 'diff-line-addition',      // Green background
+                    glyphMarginClassName: 'diff-gutter-addition'  // Green gutter marker
                 }
             });
         } else if (line.startsWith('-')) {
+            // Deletion decoration - red background and gutter marker
             decorations.push({
                 range: new monaco.Range(lineNumber, 1, lineNumber, 1),
                 options: {
-                    isWholeLine: true,
-                    className: 'diff-line-deletion',
-                    glyphMarginClassName: 'diff-gutter-deletion'
+                    isWholeLine: true,                    // Highlight entire line
+                    className: 'diff-line-deletion',      // Red background
+                    glyphMarginClassName: 'diff-gutter-deletion'  // Red gutter marker
                 }
             });
-            deletionLines.add(lineNumber);
+            deletionLines.add(lineNumber);  // Mark this line as deleted
         }
         lineNumber++;
     });
@@ -840,23 +848,28 @@ function applyDiffDecorations(editor, content) {
 }
 
 /**
- * Creates and shows the review modal with side-by-side diff view
- * @param {string} originalCode - The original source code
+ * Review Modal Management
+ * ---------------------
+ * Creates and manages a modal dialog for reviewing code changes.
+ * Provides both side-by-side and inline diff views with syntax highlighting.
+ * 
+ * @param {string} originalCode - The original source code before changes
  * @param {string} proposedCode - The proposed code changes
  */
 function createReviewModal(originalCode, proposedCode) {
-    let isInlineView = false;
-    let sideBySideEditor = null;
-    let inlineEditor = null;
+    // State variables for view management
+    let isInlineView = false;        // Tracks current view mode (side-by-side vs inline)
+    let sideBySideEditor = null;     // Reference to side-by-side editor instance
+    let inlineEditor = null;         // Reference to inline editor instance
     
-    // Create modal elements
+    // Create modal overlay and container
     const overlay = document.createElement('div');
     overlay.className = 'review-modal-overlay';
     
     const modal = document.createElement('div');
     modal.className = 'review-modal';
     
-    // Add header
+    // Create modal header with controls
     const header = document.createElement('div');
     header.className = 'review-modal-header';
     
@@ -864,90 +877,126 @@ function createReviewModal(originalCode, proposedCode) {
     title.className = 'review-modal-title';
     title.textContent = 'Review Changes';
 
+    // Create view toggle button
     const toggleViewButton = document.createElement('button');
     toggleViewButton.className = 'review-modal-toggle';
     toggleViewButton.textContent = 'Toggle Inline View';
     
+    // Create close button
     const closeButton = document.createElement('button');
     closeButton.className = 'review-modal-close';
     closeButton.innerHTML = '&times;';
     closeButton.onclick = () => {
-        overlay.remove();
+        overlay.remove();  // Remove the modal when close button is clicked
     };
     
+    // Assemble header components
     header.appendChild(title);
     header.appendChild(toggleViewButton);
     header.appendChild(closeButton);
-    
-    // Create both view containers
+
+    /**
+     * View Container Creation
+     * ---------------------
+     */
+    // Create containers for both view modes
     const sideBySideContent = document.createElement('div');
     sideBySideContent.className = 'review-modal-content side-by-side';
     
     const inlineContent = document.createElement('div');
     inlineContent.className = 'review-modal-content inline';
-    inlineContent.style.display = 'none';
+    inlineContent.style.display = 'none';  // Hidden by default
 
-    // Create side-by-side view
+    /**
+     * Side-by-Side View Setup
+     * ---------------------
+     */
+    // Create container for original code
     const originalContainer = document.createElement('div');
     originalContainer.className = 'review-editor-container';
     
+    // Add title for original code
     const originalTitle = document.createElement('div');
     originalTitle.className = 'review-editor-title';
     originalTitle.textContent = 'Original Code';
     
+    // Create editor div for original code
     const originalEditorDiv = document.createElement('div');
     originalEditorDiv.className = 'review-editor';
     
+    // Assemble original code container
     originalContainer.appendChild(originalTitle);
     originalContainer.appendChild(originalEditorDiv);
     
+    // Create container for proposed changes
     const proposedContainer = document.createElement('div');
     proposedContainer.className = 'review-editor-container';
     
+    // Add title for proposed changes
     const proposedTitle = document.createElement('div');
     proposedTitle.className = 'review-editor-title';
     proposedTitle.textContent = 'Proposed Changes';
     
+    // Create editor div for proposed changes
     const proposedEditorDiv = document.createElement('div');
     proposedEditorDiv.className = 'review-editor';
     
+    // Assemble proposed code container
     proposedContainer.appendChild(proposedTitle);
     proposedContainer.appendChild(proposedEditorDiv);
     
+    // Add both containers to side-by-side view
     sideBySideContent.appendChild(originalContainer);
     sideBySideContent.appendChild(proposedContainer);
 
-    // Create inline view container
+    /**
+     * Inline View Setup
+     * ---------------
+     */
+    // Create single editor container for inline view
     const inlineEditorDiv = document.createElement('div');
     inlineEditorDiv.className = 'review-editor';
     inlineContent.appendChild(inlineEditorDiv);
     
-    // Assemble modal
+    /**
+     * Modal Assembly
+     * ------------
+     */
+    // Assemble all components into the modal
     modal.appendChild(header);
     modal.appendChild(sideBySideContent);
     modal.appendChild(inlineContent);
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
 
-    // Initialize side-by-side editors
+    /**
+     * Editor Initialization
+     * -------------------
+     */
+    // Initialize the original code editor (left side)
     const originalEditor = monaco.editor.create(originalEditorDiv, {
         value: originalCode,
         language: 'javascript',
         theme: 'vs-dark',
-        readOnly: true,
-        minimap: { enabled: true },
-        scrollBeyondLastLine: false,
-        renderSideBySide: false,
-        fontFamily: 'JetBrains Mono',
+        readOnly: true,                  // Prevent editing of original code
+        minimap: { enabled: true },      // Show minimap for navigation
+        scrollBeyondLastLine: false,     // Don't scroll past the last line
+        renderSideBySide: false,         // Single editor view
+        fontFamily: 'JetBrains Mono',    // Monospace font for code
         fontSize: 13
     });
 
-    // Generate diff view for the right editor
+    /**
+     * Diff Generation and View Setup
+     * ---------------------------
+     */
+    // Generate diff between original and proposed code
     const diff = generateDiff(originalCode, proposedCode);
     const diffView = [];
     let currentLine = 0;
     const originalLines = originalCode.split('\n');
     
+    // Process diff hunks to create the diff view
     diff.hunks.forEach(hunk => {
         // Add unchanged lines before the hunk
         while (currentLine < hunk.oldStart - 1) {
@@ -955,31 +1004,36 @@ function createReviewModal(originalCode, proposedCode) {
             currentLine++;
         }
         
-        // Add the hunk lines with diff markers
+        // Process each line in the hunk
         hunk.lines.forEach(line => {
             if (line.startsWith('-')) {
-                diffView.push(line); // Keep the '-' marker
+                diffView.push(line);     // Keep deletion marker
                 currentLine++;
             } else if (line.startsWith('+')) {
-                diffView.push(line); // Keep the '+' marker
+                diffView.push(line);     // Keep addition marker
             } else {
-                diffView.push(line);
+                diffView.push(line);     // Unchanged line
                 currentLine++;
             }
         });
     });
     
-    // Add remaining unchanged lines
+    // Add any remaining unchanged lines
     while (currentLine < originalLines.length) {
         diffView.push(originalLines[currentLine]);
         currentLine++;
     }
 
+    /**
+     * Proposed Changes Editor Setup
+     * --------------------------
+     */
+    // Initialize the proposed changes editor (right side)
     const proposedEditor = monaco.editor.create(proposedEditorDiv, {
-        value: diffView.join('\n'),
+        value: diffView.join('\n'),      // Show the diff view
         language: 'javascript',
         theme: 'vs-dark',
-        readOnly: true,
+        readOnly: true,                  // Prevent editing in review mode
         minimap: { enabled: true },
         scrollBeyondLastLine: false,
         renderSideBySide: false,
@@ -987,7 +1041,11 @@ function createReviewModal(originalCode, proposedCode) {
         fontSize: 13
     });
 
-    // Initialize inline editor with the same diff view
+    /**
+     * Inline Editor Setup
+     * ----------------
+     */
+    // Initialize the inline editor with the same diff view
     inlineEditor = monaco.editor.create(inlineEditorDiv, {
         value: diffView.join('\n'),
         language: 'javascript',
@@ -1031,24 +1089,40 @@ function createReviewModal(originalCode, proposedCode) {
     applyEditorDecorations(proposedEditor, diffView);
     applyEditorDecorations(inlineEditor, diffView);
 
-    // Toggle view handler
+    /**
+     * View Toggle Handler
+     * -----------------
+     * Manages switching between side-by-side and inline views
+     */
     toggleViewButton.onclick = () => {
+        // Toggle the view state
         isInlineView = !isInlineView;
+        
+        // Update display of view containers
         sideBySideContent.style.display = isInlineView ? 'none' : 'flex';
         inlineContent.style.display = isInlineView ? 'block' : 'none';
+        
+        // Update button text
         toggleViewButton.textContent = isInlineView ? 'Show Side by Side' : 'Show Inline';
         
         // Trigger layout update for the visible editor
         if (isInlineView) {
+            // Update inline editor layout when switching to inline view
             inlineEditor.layout();
         } else {
+            // Update both editors' layouts when switching to side-by-side view
             originalEditor.layout();
             proposedEditor.layout();
         }
     };
     
-    // Clean up when modal is closed
+    /**
+     * Cleanup Handler
+     * -------------
+     * Ensures proper cleanup of editor instances when modal is closed
+     */
     overlay.addEventListener('remove', () => {
+        // Dispose of all editor instances to prevent memory leaks
         originalEditor.dispose();
         proposedEditor.dispose();
         inlineEditor.dispose();
@@ -1056,40 +1130,56 @@ function createReviewModal(originalCode, proposedCode) {
 }
 
 /**
- * Sends a message to the Gemini API
+ * Message Handling and AI Integration
+ * --------------------------------
+ * Handles sending messages to the Gemini AI API and processing responses.
+ * Manages the chat interface, code diffs, and user interactions.
  */
 async function sendMessage() {
+    // Get UI elements
     const input = document.querySelector('.composer-chat-input');
     const submitButton = document.querySelector('.composer-chat-submit');
     
+    // Get and validate message
     const message = input.value.trim();
     if (!message) return;
 
+    // Validate API key availability
     if (!GEMINI_API_KEY) {
         addMessageToChat('Error: Gemini API key not found', 'composer-error');
         return;
     }
 
-    // Add user message to chat
+    /**
+     * Message UI Updates
+     * ----------------
+     */
+    // Display user message in chat
     addMessageToChat(message, 'composer-user-message');
     
-    // Add user message to conversation history
+    // Update conversation history
     conversationHistory.push({ role: 'user', content: message });
 
-    // Clear input and reset
+    // Reset input field
     input.value = '';
     input.style.height = 'auto';
 
+    /**
+     * API Interaction
+     * -------------
+     */
     try {
+        // Update UI to show processing state
         submitButton.disabled = true;
         submitButton.textContent = 'Thinking...';
         
-        // Get current source code
+        // Get current editor content
         const currentCode = mainEditor.getValue();
         
-        // Create prompt with code context
+        // Construct prompt with code context
         const prompt = `As a code modification assistant, analyze this request and suggest specific code changes. Current code:\n\`\`\`\n${currentCode}\n\`\`\`\n\nRequest: ${message}\n\nProvide your response in this format:\n1. Brief explanation of changes\n2. Complete modified code block (include ALL code, not just changes)\n3. Note any potential issues or considerations`;
         
+        // Make API request to Gemini
         const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             headers: {
@@ -1103,31 +1193,47 @@ async function sendMessage() {
             })
         });
 
+        // Handle API errors
         if (!response.ok) {
             throw new Error(`API Error: ${response.statusText}`);
         }
 
+        // Process API response
         const data = await response.json();
         const aiResponse = data.candidates[0].content.parts[0].text;
         
-        // Add AI response to conversation history
+        // Update conversation history with AI response
         conversationHistory.push({ role: 'assistant', content: aiResponse });
         
+        /**
+         * Diff Preview Creation and Management
+         * ---------------------------------
+         * This section handles the creation and display of the diff preview UI,
+         * including the diff header, content, and action buttons.
+         */
         // Extract code block from response
         const codeMatch = aiResponse.match(/```[\s\S]*?\n([\s\S]*?)```/);
         if (codeMatch) {
             const proposedCode = codeMatch[1];
             const diff = generateDiff(currentCode, proposedCode);
             
-            // Show the diff preview
+            /**
+             * Preview Container Setup
+             * ---------------------
+             */
+            // Create and initialize the preview container
             const previewContainer = document.createElement('div');
             previewContainer.className = 'composer-diff-preview';
             
-            // Disable previous preview before setting the new one
+            // Manage active preview state
             disablePreviousPreview();
             currentActivePreview = previewContainer;
             
-            // Add diff header
+            /**
+             * Diff Header Creation
+             * ------------------
+             */
+            // Create header with title and legend
             const header = document.createElement('div');
             header.className = 'composer-diff-header';
             header.innerHTML = `
@@ -1139,11 +1245,15 @@ async function sendMessage() {
             `;
             previewContainer.appendChild(header);
             
-            // Add diff content
+            /**
+             * Diff Content Display
+             * ------------------
+             */
+            // Create and populate diff content container
             const content = document.createElement('div');
             content.className = 'composer-diff-content';
             
-            // Add the diff lines
+            // Process and display diff lines
             diff.hunks.forEach(hunk => {
                 hunk.lines.forEach(line => {
                     const lineDiv = document.createElement('div');
@@ -1160,48 +1270,62 @@ async function sendMessage() {
             
             previewContainer.appendChild(content);
             
-            // Add accept/reject buttons
+            /**
+             * Action Buttons Setup
+             * ------------------
+             */
+            // Create container for action buttons
             const buttonsContainer = document.createElement('div');
             buttonsContainer.className = 'composer-diff-actions';
             
+            /**
+             * View in Source Button
+             * -------------------
+             * Handles switching between composer and source editor views
+             */
             const viewInSourceButton = document.createElement('button');
             viewInSourceButton.className = 'view-source';
             viewInSourceButton.textContent = 'View in Source';
-            let isInSourceView = false;  // Track the current view state
-            let originalCode = null;  // Store original code
-            let decorations = [];     // Store decorations
+            let isInSourceView = false;
+            let originalCode = null;
+            let decorations = [];
             
+            // View in Source button click handler
             viewInSourceButton.onclick = () => {
                 if (!isInSourceView) {
-                    // Switch to source view
+                    /**
+                     * Switch to Source View
+                     * -------------------
+                     */
                     originalCode = mainEditor.getValue();
                     const diffView = prepareSourceDiffView(originalCode, diff);
                     mainEditor.setValue(diffView);
                     decorations = applyDiffDecorations(mainEditor, diffView);
                     
-                    // Create and add floating review button
+                    // Add floating review button
                     const reviewButton = document.createElement('button');
                     reviewButton.className = 'floating-review-button';
                     reviewButton.textContent = 'Review Changes';
-                    reviewButton.onclick = () => {
-                        createReviewModal(originalCode, proposedCode);
-                    };
+                    reviewButton.onclick = () => createReviewModal(originalCode, proposedCode);
                     
-                    // Add the button to the source editor container
+                    // Add button to source container
                     const sourceContainer = layout.root.getItemsById("source")[0].container.getElement()[0];
-                    sourceContainer.style.position = 'relative';  // Ensure proper positioning
+                    sourceContainer.style.position = 'relative';
                     sourceContainer.appendChild(reviewButton);
                     
-                    // Update button state
+                    // Update UI state
                     viewInSourceButton.textContent = 'View in Editor';
                     isInSourceView = true;
                     
-                    // Update accept button handler for source view
+                    /**
+                     * Source View Button Handlers
+                     * -------------------------
+                     */
+                    // Accept button handler for source view
                     acceptButton.onclick = () => {
                         if (!isReverted) {
-                            // Store original state before applying changes
+                            // Apply changes
                             originalCodeState = mainEditor.getValue();
-                            
                             const lines = diffView.split('\n')
                                 .filter(line => !line.startsWith('-'))
                                 .map(line => line.startsWith('+') ? line.substring(1) : line);
@@ -1209,7 +1333,7 @@ async function sendMessage() {
                             mainEditor.setValue(lines.join('\n'));
                             mainEditor.deltaDecorations(decorations, []);
                             
-                            // Change button to revert state
+                            // Update UI state
                             acceptButton.textContent = 'Revert';
                             acceptButton.classList.add('revert');
                             isReverted = true;
@@ -1218,7 +1342,7 @@ async function sendMessage() {
                             viewInSourceButton.disabled = true;
                             rejectButton.disabled = true;
                             
-                            // Add visual feedback
+                            // Add status indicator
                             const statusDiv = document.createElement('div');
                             statusDiv.className = 'composer-diff-status accepted';
                             statusDiv.textContent = '✓ Changes Applied';
@@ -1230,43 +1354,39 @@ async function sendMessage() {
                             mainEditor.setValue(originalCodeState);
                             decorations = applyDiffDecorations(mainEditor, diffView);
                             
-                            // Change button back to apply state
+                            // Update UI state
                             acceptButton.textContent = 'Apply';
                             acceptButton.classList.remove('revert');
                             isReverted = false;
                             
-                            // Re-enable other buttons
+                            // Re-enable buttons
                             viewInSourceButton.disabled = false;
                             rejectButton.disabled = false;
                             
-                            // Remove status message if it exists
+                            // Remove status indicator
                             const statusDiv = buttonsContainer.querySelector('.composer-diff-status');
-                            if (statusDiv) {
-                                statusDiv.remove();
-                            }
+                            if (statusDiv) statusDiv.remove();
                             
                             addMessageToChat('Changes reverted.', 'composer-ai-message');
                         }
                     };
                     
-                    // Update reject button handler for source view
+                    // Reject button handler for source view
                     rejectButton.onclick = () => {
                         mainEditor.setValue(originalCode);
                         mainEditor.deltaDecorations(decorations, []);
                         
-                        // Remove the floating review button
+                        // Clean up UI
                         const sourceContainer = layout.root.getItemsById("source")[0].container.getElement()[0];
                         const reviewButton = sourceContainer.querySelector('.floating-review-button');
-                        if (reviewButton) {
-                            reviewButton.remove();
-                        }
+                        if (reviewButton) reviewButton.remove();
                         
-                        // Disable all buttons
+                        // Disable buttons
                         viewInSourceButton.disabled = true;
                         acceptButton.disabled = true;
                         rejectButton.disabled = true;
                         
-                        // Add visual feedback
+                        // Add status indicator
                         const statusDiv = document.createElement('div');
                         statusDiv.className = 'composer-diff-status rejected';
                         statusDiv.textContent = '✕ Changes Rejected';
@@ -1281,28 +1401,28 @@ async function sendMessage() {
                         sourcePanel.parent.header.parent.setActiveContentItem(sourcePanel);
                     }
                 } else {
-                    // Switch back to composer view
+                    /**
+                     * Switch back to Composer View
+                     * --------------------------
+                     */
                     mainEditor.setValue(originalCode);
                     mainEditor.deltaDecorations(decorations, []);
                     
-                    // Remove the floating review button
+                    // Clean up UI
                     const sourceContainer = layout.root.getItemsById("source")[0].container.getElement()[0];
                     const reviewButton = sourceContainer.querySelector('.floating-review-button');
-                    if (reviewButton) {
-                        reviewButton.remove();
-                    }
+                    if (reviewButton) reviewButton.remove();
                     
-                    // Update button state
+                    // Reset button state
                     viewInSourceButton.textContent = 'View in Source';
                     isInSourceView = false;
                     
-                    // Restore original accept button handler
+                    // Restore original button handlers
                     acceptButton.onclick = () => {
                         mainEditor.setValue(proposedCode);
                         addMessageToChat('Changes applied successfully.', 'composer-ai-message');
                     };
                     
-                    // Restore original reject button handler
                     rejectButton.onclick = () => {
                         addMessageToChat('Changes rejected.', 'composer-ai-message');
                     };
@@ -1315,21 +1435,27 @@ async function sendMessage() {
                 }
             };
             
+            /**
+             * Accept/Reject Buttons
+             * -------------------
+             */
+            // Accept button setup
             const acceptButton = document.createElement('button');
             acceptButton.className = 'accept';
             acceptButton.textContent = 'Apply';
             
-            // Store original code state
+            // State tracking for accept/revert
             let isReverted = false;
             let originalCodeState = null;
             
+            // Accept button click handler
             acceptButton.onclick = () => {
                 if (!isReverted) {
-                    // Applying changes
+                    // Apply changes
                     originalCodeState = mainEditor.getValue();
                     mainEditor.setValue(proposedCode);
                     
-                    // Change button to revert state
+                    // Update UI state
                     acceptButton.textContent = 'Revert';
                     acceptButton.classList.add('revert');
                     isReverted = true;
@@ -1338,7 +1464,7 @@ async function sendMessage() {
                     viewInSourceButton.disabled = true;
                     rejectButton.disabled = true;
                     
-                    // Add visual feedback
+                    // Add status indicator
                     const statusDiv = document.createElement('div');
                     statusDiv.className = 'composer-diff-status accepted';
                     statusDiv.textContent = '✓ Changes Applied';
@@ -1346,28 +1472,27 @@ async function sendMessage() {
                     
                     addMessageToChat('Changes applied successfully.', 'composer-ai-message');
                 } else {
-                    // Reverting changes
+                    // Revert changes
                     mainEditor.setValue(originalCodeState);
                     
-                    // Change button back to apply state
+                    // Update UI state
                     acceptButton.textContent = 'Apply';
                     acceptButton.classList.remove('revert');
                     isReverted = false;
                     
-                    // Re-enable other buttons
+                    // Re-enable buttons
                     viewInSourceButton.disabled = false;
                     rejectButton.disabled = false;
                     
-                    // Remove status message if it exists
+                    // Remove status indicator
                     const statusDiv = buttonsContainer.querySelector('.composer-diff-status');
-                    if (statusDiv) {
-                        statusDiv.remove();
-                    }
+                    if (statusDiv) statusDiv.remove();
                     
                     addMessageToChat('Changes reverted.', 'composer-ai-message');
                 }
             };
             
+            // Reject button setup
             const rejectButton = document.createElement('button');
             rejectButton.className = 'reject';
             rejectButton.textContent = 'Reject';
@@ -1377,35 +1502,34 @@ async function sendMessage() {
                 acceptButton.disabled = true;
                 rejectButton.disabled = true;
                 
-                // Add visual feedback
+                // Add status indicator
                 const statusDiv = document.createElement('div');
                 statusDiv.className = 'composer-diff-status rejected';
                 statusDiv.textContent = '✕ Changes Rejected';
                 buttonsContainer.insertBefore(statusDiv, viewInSourceButton);
                 
-                // Add rejection message to chat
                 addMessageToChat('Changes rejected.', 'composer-ai-message');
             };
             
+            // Assemble and add buttons
             buttonsContainer.appendChild(viewInSourceButton);
             buttonsContainer.appendChild(acceptButton);
             buttonsContainer.appendChild(rejectButton);
-            
-            // Add buttons container to preview container
             previewContainer.appendChild(buttonsContainer);
             
-            // Add the preview to the chat
+            // Add preview to chat
             const messagesContainer = document.querySelector('.composer-chat-messages');
             messagesContainer.appendChild(previewContainer);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
         
-        // Add AI response to chat
+        // Add AI response to chat (excluding code blocks)
         addMessageToChat(aiResponse.replace(/```[\s\S]*?```/g, '').trim(), 'composer-ai-message');
 
     } catch (error) {
         addMessageToChat(`Error: ${error.message}`, 'composer-error');
     } finally {
+        // Reset button state
         submitButton.disabled = false;
         submitButton.textContent = 'Submit';
     }
@@ -1429,20 +1553,24 @@ function createChatUI(container) {
     input.className = 'composer-chat-input';
     input.placeholder = 'Type your message...';
 
-    // Auto-resize function
+    /**
+     * Input Auto-resize
+     * ---------------
+     */
     function autoResize() {
         input.style.height = 'auto';
         input.style.height = Math.min(input.scrollHeight, 200) + 'px';
     }
-
-    // Add input event listener for auto-resize
     input.addEventListener('input', autoResize);
     
     const submitButton = document.createElement('button');
     submitButton.className = 'composer-chat-submit';
     submitButton.textContent = 'Submit';
     
-    // Set up event handlers
+    /**
+     * Event Handlers
+     * ------------
+     */
     submitButton.addEventListener('click', sendMessage);
     input.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -1535,39 +1663,45 @@ export function addErrorToComposer(errorMessage) {
 
 /**
  * Focuses the composer chat input
+ * Switches to the composer panel and focuses the input field
  */
 export function focusComposer() {
     const input = document.querySelector('.composer-chat-input');
     if (input) {
-        // Get the composer panel and switch to it
+        // Switch to composer panel
         const composerPanel = layout.root.getItemsById("composer")[0];
         if (composerPanel?.parent?.header?.parent) {
             composerPanel.parent.header.parent.setActiveContentItem(composerPanel);
         }
         
-        // Focus the input
+        // Focus input
         input.focus();
     }
 }
 
+/**
+ * Preview State Management
+ * ----------------------
+ * Handles the state of previous diff previews
+ */
 function disablePreviousPreview() {
     if (currentActivePreview) {
-        // Add inactive class to the preview container
+        // Add inactive styling
         currentActivePreview.classList.add('inactive');
         
-        // Disable all buttons in the previous preview
+        // Disable buttons
         const buttons = currentActivePreview.querySelectorAll('button');
         buttons.forEach(button => {
             button.disabled = true;
             button.style.opacity = '0.5';
             button.style.cursor = 'not-allowed';
             
-            // Remove any event listeners by cloning and replacing the button
+            // Remove event listeners
             const newButton = button.cloneNode(true);
             button.parentNode.replaceChild(newButton, button);
         });
         
-        // Add a visual indicator that this diff is no longer active
+        // Add inactive indicator
         const header = currentActivePreview.querySelector('.composer-diff-header');
         if (header && !header.querySelector('.composer-diff-inactive')) {
             const inactiveLabel = document.createElement('div');
@@ -1578,7 +1712,7 @@ function disablePreviousPreview() {
             header.appendChild(inactiveLabel);
         }
         
-        // Remove any stored state or references
+        // Clean up stored data
         currentActivePreview.removeAttribute('data-original-code');
         currentActivePreview.removeAttribute('data-proposed-code');
     }
