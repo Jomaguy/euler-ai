@@ -36,19 +36,48 @@
  *    - Responsive layout management
  */
 
+/**
+ * External Dependencies and State Management
+ * ----------------------------------------
+ * This section initializes the core dependencies and state variables
+ * required for the Composer component's functionality.
+ */
+
+// Import editor management utilities for Monaco integration
 import * as EditorManager from '../editor/EditorManager.js';
+
+// Import diff utilities for code comparison functionality
+// Using ESM import for the diff library to maintain browser compatibility
 import { createTwoFilesPatch, parsePatch } from 'https://cdn.jsdelivr.net/npm/diff@5.1.0/lib/index.mjs';
 
+// API key for Gemini AI integration
+// Used for generating code suggestions and modifications
 const GEMINI_API_KEY = "AIzaSyAaS8BakefjrV1T3H3obrkQPJwmFjRpWFs";
 
+/**
+ * Global State Variables
+ * ---------------------
+ * These variables maintain the component's state across different functions
+ * and features. They are initialized as null/empty and populated during setup.
+ */
+
+// Reference to the main Monaco editor instance
 let mainEditor = null;
+
+// Reference to the GoldenLayout instance for managing UI layout
 let layout = null;
+
+// Conversation history array with initial system prompt
+// Maintains the context of the AI conversation
 let conversationHistory = [
     {
         role: 'system',
         content: 'You are a programming tutor who uses the Socratic method. Keep your responses concise and focused. Instead of giving direct answers, guide users through problems with targeted questions. Limit explanations to 2-3 sentences when possible. When reviewing code, ask specific questions about potential issues or improvements. Your goal is to help users discover solutions through self-reflection and critical thinking.'
     }
 ];
+
+// Tracks the currently active diff preview
+// Used to manage state when multiple diffs are present
 let currentActivePreview = null;
 
 // Add chat styles
