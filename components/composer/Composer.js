@@ -80,49 +80,85 @@ let conversationHistory = [
 // Used to manage state when multiple diffs are present
 let currentActivePreview = null;
 
-// Add chat styles
+/**
+ * Chat Interface Styles
+ * --------------------
+ * Creates and applies styles for the entire chat interface including
+ * the main container, messages, input area, and diff preview.
+ * All styles are added programmatically to maintain encapsulation.
+ */
 const chatStyles = document.createElement('style');
 chatStyles.textContent = `
+    /**
+     * Main Chat Container
+     * ------------------
+     * Primary container for the entire chat interface.
+     * Uses flex layout for proper content distribution.
+     */
     .composer-chat-container {
         height: 100%;
         display: flex;
         flex-direction: column;
-        background: #1e1e1e;
-        color: #d4d4d4;
+        background: #1e1e1e;  /* Dark theme background */
+        color: #d4d4d4;       /* Light text for readability */
     }
     
+    /**
+     * Messages Container
+     * -----------------
+     * Scrollable container for chat messages.
+     * Grows to fill available space and maintains message spacing.
+     */
     .composer-chat-messages {
-        flex-grow: 1;
-        overflow-y: auto;
+        flex-grow: 1;          /* Takes up remaining vertical space */
+        overflow-y: auto;      /* Enables vertical scrolling */
         padding: 10px;
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 8px;             /* Consistent spacing between messages */
     }
     
+    /**
+     * Input Area Container
+     * -------------------
+     * Container for the text input and submit button.
+     * Positioned at the bottom of the chat interface.
+     */
     .composer-chat-input-container {
         padding: 10px;
-        border-top: 1px solid #3c3c3c;
+        border-top: 1px solid #3c3c3c;  /* Separator line */
         background: #1e1e1e;
     }
     
+    /**
+     * Chat Input Field
+     * ---------------
+     * Expandable textarea for user input.
+     * Supports multi-line input with height constraints.
+     */
     .composer-chat-input {
         width: 100%;
         min-height: 40px;
-        max-height: 200px;
+        max-height: 200px;     /* Limits vertical expansion */
         padding: 8px;
-        background: #2d2d2d;
+        background: #2d2d2d;   /* Slightly lighter than container */
         color: #d4d4d4;
         border: 1px solid #3c3c3c;
         border-radius: 4px;
         font-family: inherit;
-        resize: none;
+        resize: none;          /* Disables manual resizing */
         margin-bottom: 8px;
     }
     
+    /**
+     * Submit Button Styles
+     * -------------------
+     * Styles for the message submit button.
+     * Includes hover and disabled states.
+     */
     .composer-chat-submit {
         padding: 6px 12px;
-        background: #0e639c;
+        background: #0e639c;   /* Blue accent color */
         color: white;
         border: none;
         border-radius: 4px;
@@ -131,45 +167,57 @@ chatStyles.textContent = `
     }
     
     .composer-chat-submit:hover {
-        background: #1177bb;
+        background: #1177bb;   /* Lighter blue on hover */
     }
     
     .composer-chat-submit:disabled {
-        background: #4d4d4d;
+        background: #4d4d4d;   /* Grayed out when disabled */
         cursor: not-allowed;
     }
     
+    /**
+     * Message Styling
+     * --------------
+     * Styles for different types of messages (user, AI, error).
+     * Uses different colors and positioning for visual distinction.
+     */
     .composer-message {
         padding: 8px 12px;
         border-radius: 4px;
-        max-width: 85%;
-        word-break: break-word;
+        max-width: 85%;        /* Prevents messages from being too wide */
+        word-break: break-word; /* Handles long words */
     }
     
     .composer-user-message {
-        background: #0e639c;
-        align-self: flex-end;
+        background: #0e639c;   /* Blue for user messages */
+        align-self: flex-end;  /* Right-aligned */
     }
     
     .composer-ai-message {
-        background: #2d2d2d;
-        align-self: flex-start;
+        background: #2d2d2d;   /* Dark gray for AI messages */
+        align-self: flex-start; /* Left-aligned */
     }
     
     .composer-error {
-        background: #4d2d2d;
-        color: #f44336;
-        align-self: center;
+        background: #4d2d2d;   /* Dark red for error messages */
+        color: #f44336;        /* Red text */
+        align-self: center;    /* Centered */
     }
 
+    /**
+     * Diff Preview Container
+     * ---------------------
+     * Styles for the code difference preview section.
+     * Provides a contained area for viewing code changes.
+     */
     .composer-diff-preview {
         background: #1e1e1e;
         border: 1px solid #3c3c3c;
         border-radius: 4px;
         margin: 10px 0;
         overflow: hidden;
-        height: 70vh;
-        min-height: 400px;
+        height: 70vh;          /* Takes up 70% of viewport height */
+        min-height: 400px;     /* Minimum height constraint */
         display: flex;
         flex-direction: column;
     }
@@ -478,6 +526,8 @@ chatStyles.textContent = `
         height: 100%;
     }
 `;
+
+// Add the styles to the document head
 document.head.appendChild(chatStyles);
 
 /**
