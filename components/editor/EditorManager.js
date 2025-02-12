@@ -106,6 +106,10 @@ export function getFontSize() {
     return fontSize;
 }
 
+export function getSourceEditor() {
+    return sourceEditor;
+}
+
 export function increaseFontSize() {
     setFontSizeForAllEditors(fontSize + 1);
 }

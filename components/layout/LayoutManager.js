@@ -10,6 +10,7 @@ import * as EditorManager from "../editor/EditorManager.js";
 import * as LanguageManager from "../language/LanguageManager.js";
 import * as CompilerManager from "../compiler/CompilerManager.js";
 import * as ChatManager from "../chat/ChatManager.js";
+import { setupComposer } from "../composer/Composer.js";
 
 // State variables
 let layout;
@@ -60,15 +61,30 @@ const layoutConfig = {
                 }
             }]
         }, {
-            type: "component",
+            type: "column",
             width: 30,
-            componentName: "middle",
-            id: "middle",
-            title: "Chat",
-            isClosable: false,
-            componentState: {
-                readOnly: false
-            }
+            content: [{
+                type: "stack",
+                content: [{
+                    type: "component",
+                    componentName: "chat",
+                    id: "chat",
+                    title: "Chat",
+                    isClosable: false,
+                    componentState: {
+                        readOnly: false
+                    }
+                }, {
+                    type: "component",
+                    componentName: "composer",
+                    id: "composer",
+                    title: "Composer",
+                    isClosable: false,
+                    componentState: {
+                        readOnly: false
+                    }
+                }]
+            }]
         }]
     }]
 };
@@ -118,10 +134,12 @@ function clear() {
  * Updates the site content height based on navigation height
  */
 function refreshSiteContentHeight() {
-    const navigationHeight = document.getElementById("judge0-site-navigation").offsetHeight;
+    const navigationHeight = document.getElementById("judge0-site-navigation")?.offsetHeight || 0;
     const siteContent = document.getElementById("judge0-site-content");
-    siteContent.style.height = `${window.innerHeight}px`;
-    siteContent.style.paddingTop = `${navigationHeight}px`;
+    if (siteContent) {
+        siteContent.style.height = `${window.innerHeight}px`;
+        siteContent.style.paddingTop = `${navigationHeight}px`;
+    }
 }
 
 /**
@@ -202,6 +220,11 @@ export async function initialize() {
         // Initialize all managers
         EditorManager.initializeEditors(layout);
         ChatManager.initialize(layout);
+        
+        // Register the composer component
+        layout.registerComponent("composer", function(container, state) {
+            setupComposer(container);
+        });
 
         layout.on("initialised", function () {
             setDefaults();

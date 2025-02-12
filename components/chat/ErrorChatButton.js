@@ -6,6 +6,39 @@
  */
 
 import * as ChatManager from "./ChatManager.js";
+import * as Composer from "../composer/Composer.js";
+
+// Add styles
+const styles = document.createElement('style');
+styles.textContent = `
+    .ask-chat-box {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #2d2d2d;
+        border: 1px solid #3c3c3c;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        overflow: hidden;
+        z-index: 1000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .ask-chat-option {
+        padding: 6px 12px;
+        cursor: pointer;
+        color: #d4d4d4;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+    
+    .ask-chat-option:hover {
+        background: #3c3c3c;
+    }
+`;
+document.head.appendChild(styles);
 
 /**
  * Creates an "Ask Chat" button when there's a compilation error
@@ -20,26 +53,41 @@ export function create(errorMessage, editorElement) {
     }
 
     // Remove any existing ask chat button
-    const existingButton = document.querySelector('.ask-chat-button');
+    const existingButton = document.querySelector('.ask-chat-box');
     if (existingButton) {
         existingButton.remove();
     }
 
-    const button = document.createElement('button');
-    button.className = 'ask-chat-button';
-    button.textContent = 'Ask Chat?';
-    button.onclick = () => {
+    const box = document.createElement('div');
+    box.className = 'ask-chat-box';
+
+    // Add chat option
+    const askChatOption = document.createElement('div');
+    askChatOption.className = 'ask-chat-option';
+    askChatOption.textContent = 'Ask in Chat';
+    askChatOption.onclick = () => {
         ChatManager.addErrorToChat(errorMessage);
     };
 
-    // Add the button to the editor container
+    // Add composer option
+    const askComposerOption = document.createElement('div');
+    askComposerOption.className = 'ask-chat-option';
+    askComposerOption.textContent = 'Ask in Composer';
+    askComposerOption.onclick = () => {
+        Composer.addErrorToComposer(errorMessage);
+    };
+
+    // Assemble the box
+    box.appendChild(askChatOption);
+    box.appendChild(askComposerOption);
+
+    // Add the box to the editor container
     editorElement.style.position = 'relative';
-    editorElement.appendChild(button);
+    editorElement.appendChild(box);
     
-    // Show the button with a fade-in effect
+    // Show the box with a fade-in effect
     setTimeout(() => {
-        button.style.display = 'block';
-        button.style.opacity = '1';
+        box.style.opacity = '1';
     }, 100);
 }
 
@@ -47,8 +95,8 @@ export function create(errorMessage, editorElement) {
  * Removes the error chat button if it exists
  */
 export function remove() {
-    const button = document.querySelector('.ask-chat-button');
-    if (button) {
-        button.remove();
+    const box = document.querySelector('.ask-chat-box');
+    if (box) {
+        box.remove();
     }
 } 

@@ -6,6 +6,7 @@
  */
 
 import * as ChatManager from "./ChatManager.js";
+import * as Composer from "../composer/Composer.js";
 
 let currentSelection = '';
 let addToChatBox = null;
@@ -16,13 +17,67 @@ let addToChatBox = null;
  * @param {HTMLElement} container - The container element
  */
 export function initialize(editor, container) {
-    // Create and add the "Add to Chat" button
+    // Create and add the "Add to Chat" dropdown container
     addToChatBox = document.createElement('div');
     addToChatBox.className = 'add-to-chat-box';
-    addToChatBox.textContent = 'Add to Chat';
     addToChatBox.style.position = 'fixed';
     addToChatBox.style.zIndex = '9999';
     
+    // Create dropdown menu
+    const menu = document.createElement('div');
+    menu.className = 'add-to-chat-menu';
+    
+    // Add chat option
+    const addToChatOption = document.createElement('div');
+    addToChatOption.className = 'add-to-chat-option';
+    addToChatOption.textContent = 'Add to Chat';
+    addToChatOption.onclick = () => {
+        if (currentSelection) {
+            ChatManager.addCodeToChat(currentSelection);
+            addToChatBox.style.display = 'none';
+        }
+    };
+    
+    // Add composer option
+    const addToComposerOption = document.createElement('div');
+    addToComposerOption.className = 'add-to-chat-option';
+    addToComposerOption.textContent = 'Add to Composer';
+    addToComposerOption.onclick = () => {
+        if (currentSelection) {
+            Composer.addCodeToComposer(currentSelection);
+            addToChatBox.style.display = 'none';
+        }
+    };
+    
+    // Add styles
+    const styles = document.createElement('style');
+    styles.textContent = `
+        .add-to-chat-box {
+            background: #2d2d2d;
+            border: 1px solid #3c3c3c;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+        
+        .add-to-chat-option {
+            padding: 6px 12px;
+            cursor: pointer;
+            color: #d4d4d4;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+        
+        .add-to-chat-option:hover {
+            background: #3c3c3c;
+        }
+    `;
+    document.head.appendChild(styles);
+    
+    // Assemble the menu
+    menu.appendChild(addToChatOption);
+    menu.appendChild(addToComposerOption);
+    addToChatBox.appendChild(menu);
     document.body.appendChild(addToChatBox);
 
     // Add selection change handler
@@ -50,14 +105,6 @@ export function initialize(editor, container) {
                 currentSelection = '';
                 addToChatBox.style.display = 'none';
             }
-        }
-    });
-
-    // Add click handler for Add to Chat button
-    addToChatBox.addEventListener('click', function() {
-        if (currentSelection) {
-            ChatManager.addCodeToChat(currentSelection);
-            addToChatBox.style.display = 'none';
         }
     });
 

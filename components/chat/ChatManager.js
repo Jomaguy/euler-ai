@@ -167,7 +167,7 @@ export function initialize(layoutInstance) {
     layout = layoutInstance;
     
     // Register the chat component with the layout
-    layout.registerComponent("middle", function(container, state) {
+    layout.registerComponent("chat", function(container, state) {
         createChatUI(container.getElement()[0]);
     });
 }
@@ -184,7 +184,7 @@ export function getChatInput() {
  * Focuses the chat input and switches to the chat panel
  */
 export function focusChat() {
-    const chatPanel = layout.root.getItemsById("middle")[0];
+    const chatPanel = layout.root.getItemsById("chat")[0];
     if (chatPanel?.parent?.header?.parent) {
         chatPanel.parent.header.parent.setActiveContentItem(chatPanel);
     }
