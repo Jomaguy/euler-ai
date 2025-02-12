@@ -1,7 +1,39 @@
 /**
  * Composer Component
  * 
- * Manages the composer functionality for creating and editing code.
+ * A comprehensive code modification and review system that combines AI-powered suggestions
+ * with interactive diff visualization and code review capabilities.
+ * 
+ * Key Features:
+ * 1. Chat Interface:
+ *    - AI-powered code suggestions using Gemini API
+ *    - Message history tracking
+ *    - Code snippet sharing
+ * 
+ * 2. Diff Management:
+ *    - Real-time diff visualization
+ *    - Side-by-side and inline diff views
+ *    - Syntax highlighting and decorations
+ *    - Active/inactive state management
+ * 
+ * 3. Code Review System:
+ *    - Interactive review modal
+ *    - Dual view modes (side-by-side/inline)
+ *    - Source code editing with diff decorations
+ *    - Floating review button for quick access
+ * 
+ * 4. Version Control:
+ *    - Apply/Revert functionality
+ *    - Change history tracking
+ *    - Status indicators for actions
+ *    - Preview state management
+ * 
+ * 5. UI Components:
+ *    - Chat message container
+ *    - Diff preview with action buttons
+ *    - Review modal with toggle views
+ *    - Status indicators and legends
+ *    - Responsive layout management
  */
 
 import * as EditorManager from '../editor/EditorManager.js';
