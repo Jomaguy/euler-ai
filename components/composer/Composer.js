@@ -727,44 +727,10 @@ function generateDiff(currentCode, proposedCode) {
 }
 
 /**
- * Creates a complete file view with diff markers
- * @param {string} originalCode - The original source code
- * @param {Object} diff - The diff object
- * @returns {string} The complete file view with diff markers
+ * File View and Diff Processing Functions
+ * ------------------------------------
+ * Functions for creating complete file views with diff information
  */
-function createCompleteFileView(originalCode, diff) {
-    const lines = originalCode.split('\n');
-    const result = [];
-    let currentLine = 0;
-    
-    diff.hunks.forEach(hunk => {
-        const hunkStart = hunk.oldStart - 1;
-        
-        while (currentLine < hunkStart) {
-            result.push(lines[currentLine]);
-            currentLine++;
-        }
-        
-        hunk.lines.forEach(line => {
-            if (line.startsWith('-')) {
-                result.push('-' + lines[currentLine]);
-                currentLine++;
-            } else if (line.startsWith('+')) {
-                result.push('+' + line.substring(1));
-            } else {
-                result.push(lines[currentLine]);
-                currentLine++;
-            }
-        });
-    });
-    
-    while (currentLine < lines.length) {
-        result.push(lines[currentLine]);
-        currentLine++;
-    }
-    
-    return result.join('\n');
-}
 
 /**
  * Prepares the diff view for display in the source editor
@@ -787,11 +753,14 @@ function prepareSourceDiffView(originalCode, diff) {
         // Add the hunk lines with diff markers
         hunk.lines.forEach(line => {
             if (line.startsWith('-')) {
+                // Mark deleted lines with '-'
                 result.push('-' + lines[currentLine]);
                 currentLine++;
             } else if (line.startsWith('+')) {
+                // Mark added lines with '+'
                 result.push('+' + line.substring(1));
             } else {
+                // Keep unchanged lines as is
                 result.push(lines[currentLine]);
                 currentLine++;
             }
