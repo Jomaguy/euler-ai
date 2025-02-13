@@ -3,116 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-    <script>
-        var require = {
-            paths: {
-                "vs": "./vendor/monaco-editor-0.44.0/min/vs"
-            }
-        };
-    </script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/golden-layout/1.5.9/goldenlayout.min.js" integrity="sha256-NhJAZDfGgv4PiB+GVlSrPdh3uc75XXYSM4su8hgTchI=" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/golden-layout/1.5.9/css/goldenlayout-base.css" integrity="sha512-rGtzJyDE8egZ/OScuBNLW1EIhRydcfrZo14oTvZwRLzEZu+s8foCtwi0XhXsKnhuoQAwJ7POFARWdU4fBL7FbQ==" crossorigin="anonymous" referrerpolicy="no-referrer">
-    <link id="judge0-golden-layout-light-theme-stylesheet" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/golden-layout/1.5.9/css/goldenlayout-light-theme.css" integrity="sha512-/S3N+v8cRHW2GJvM3v9FGHAKOhNgws+V1dYZb1fBxRd9XIwpqZFZB0jug+2HHf64eURsJLqVzCVn92pQTFHHow==" crossorigin="anonymous" referrerpolicy="no-referrer" disabled>
-    <link id="judge0-golden-layout-dark-theme-stylesheet" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/golden-layout/1.5.9/css/goldenlayout-dark-theme.css" integrity="sha512-XfcBrEH69BhsZ0XpvPyzOLgikhAvIG6Znbi6yKi1Jh1iYaOXSXvljWFerhcUl5LYLCuV61KhfCydQ1+MNxnilg==" crossorigin="anonymous" referrerpolicy="no-referrer">
-
-    <script src="./vendor/monaco-editor-0.44.0/min/vs/loader.js"></script>
-    <script src="./vendor/monaco-editor-0.44.0/min/vs/editor/editor.main.nls.js"></script>
-    <script src="./vendor/monaco-editor-0.44.0/min/vs/editor/editor.main.js"></script>
-
+    
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/semantic.min.css" integrity="sha512-KXol4x3sVoO+8ZsWPFI/r5KBVB/ssCGB5tsv2nVOKwLg33wTFP3fmnXa47FdSVIshVTgsYk/1734xSk9aFIa4A==" crossorigin="anonymous" referrerpolicy="no-referrer">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/semantic.min.js" integrity="sha512-Xo0Jh8MsOn72LGV8kU5LsclG7SUzJsWGhXbWcYs2MAmChkQzwiW/yTQwdJ8w6UA9C6EVG18GHb/TrYpYCjyAQw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-    <script type="module" src="core/environment/ElectronDetector.js"></script>
-    <script type="module" src="core/environment/PuterIntegration.js"></script>
-    <script type="module" src="components/app/ide.js"></script>
-    <script type="module" src="core/storage/LocalStorage.js"></script>
-    <script type="module" src="core/utils/QueryParams.js"></script>
-    <script type="module" src="core/ui/StyleManager.js"></script>
-    <script type="module" src="core/theme/ThemeManager.js"></script>
-
-    <link type="text/css" rel="stylesheet" href="css/ide.css">
-    <link type="text/css" rel="stylesheet" href="css/site.css">
-
-    <title>Euler.ai</title>
-    <meta name="title" content="Euler.ai">
-    <meta name="description" content="AI-powered code editor and compiler">
-    <meta name="author" content="Euler.ai">
-    <meta name="keywords" content="online editor, online code editor, online ide, online compiler, online interpreter, run code online, learn programming online,
-    online debugger, programming in browser, online code runner, online code execution, debug online, debug C code online, debug C++ code online,
-    programming online, snippet, snippets, code snippet, code snippets, pastebin, execute code, programming in browser, run c online, run C++ online,
-    run java online, run python online, run ruby online, run c# online, run rust online, run pascal online, run basic online">
-
-    <meta property="og:url" content="https://euler.ai">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Euler.ai">
-    <meta property="og:image" content="">
-    <meta property="og:image:alt" content="Euler.ai">
-    <meta property="og:description" content="AI-powered code editor and compiler">
-    <meta property="og:site_name" content="Euler.ai">
-    <meta property="og:locale" content="en_US">
-
-    <meta property="twitter:url" content="https://euler.ai">
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:title" content="Euler.ai">
-    <meta property="twitter:image" content="">
-    <meta property="twitter:description" content="AI-powered code editor and compiler">
-
-    <meta name="msapplication-TileColor" content="#ffffff">
-    <meta name="theme-color" content="#ffffff">
-</head>
-
-<body>
-    <div id="judge0-site-navigation" class="ui top fixed borderless menu">
-        <div class="item">
-            <span style="font-weight: bold; font-size: 1.2em;">Euler.ai</span>
-        </div>
-        <div class="item">
-            <div class="ui input">
-                <select id="select-language" class="ui search selection dropdown"></select>
-            </div>
-        </div>
-        <div class="item">
-            <button id="run-btn" class="ui primary labeled icon button" data-content="+↵" data-position="bottom center">
-                <i class="play icon"></i>Run Code
-            </button>
-        </div>
-        <div class="right menu">
-            <div id="judge0-theme-toggle-btn" class="icon link item" data-content="">
-                <i id="judge0-theme-toggle-btn-icon" class="sun icon"></i>
-            </div>
-        </div>
-    </div>
-
-    <div id="judge0-site-content"></div>
-
-    <div id="judge0-site-modal" class="ui modal">
-        <div class="header">
-            <span id="title"></span>
-        </div>
-        <div class="scrolling content"></div>
-        <div class="actions">
-            <div class="ui labeled icon cancel secondary button">
-                <i class="close icon"></i>
-                Close (ESC)
-            </div>
-        </div>
-    </div>
-
-    <div id="judge0-status-line" class="ui bottom right attached label"></div>
-
-    <!-- <i class="copyright outline icon"></i>2016-2025 Judge0 d.o.o. – All Rights Reserved. -->
-    <script>
-        if ("serviceWorker" in navigator) {
-            navigator.serviceWorker.register("sw.js").then(() => console.log("Service Worker Registered"));
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Add Font Awesome for the profile icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <title>Euler.ai - Project Euler with AI assistance</title>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'JetBrains Mono', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
         }
-    </script>
+        
+        .welcome-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            color: #0e639c;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            color: #888;
+        }
+        
+        .main-content {
+            background: #252526;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .problems-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        
+        .problem-item {
+            background: #2d2d2d;
+            margin: 10px 0;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        
+        .problem-link {
+            display: block;
+            padding: 20px;
+            color: #d4d4d4;
+            text-decoration: none;
+        }
+        
+        .problem-link:hover {
+            background: #3d3d3d;
+        }
+        
+        .problem-number {
+            color: #0e639c;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .problem-title {
+            font-size: 1.1em;
+        }
+        
+        .section-title {
+            color: #0e639c;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+        
+        /* Add these new styles */
+        .profile-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+        }
+        
+        .profile-icon {
+            color: #0e639c;
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .profile-icon:hover {
+            color: #1177bb;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background: #2d2d2d;
+            color: #d4d4d4;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            right: 0;
+            top: 35px;
+            white-space: nowrap;
+            display: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .profile-container:hover .tooltip {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Add this before the welcome-container div -->
+    <div class="profile-container">
+        <i class="fas fa-user-circle profile-icon"></i>
+        <div class="tooltip">User Profile Feature Coming Soon!</div>
+    </div>
+    
+    <div class="welcome-container">
+        <div class="header">
+            <h1>Euler.ai</h1>
+            <p>Project Euler Problems with AI Assistance</p>
+        </div>
+        
+        <div class="main-content">
+            <p>Welcome to Euler.ai, where classical Project Euler problems meet modern AI assistance. Enhance your problem-solving skills with intelligent guidance and real-time code support.</p>
+            
+            <h2 class="section-title">Problems</h2>
+            <ul class="problems-list">
+                <li class="problem-item">
+                    <a href="editor.html?problem=1" class="problem-link">
+                        <span class="problem-number">#1</span>
+                        <span class="problem-title">Multiples of 3 or 5</span>
+                    </a>
+                </li>
+                <!-- More problems will be added here -->
+            </ul>
+        </div>
+    </div>
 </body>
 </html>
