@@ -40,6 +40,13 @@ styles.textContent = `
 `;
 document.head.appendChild(styles);
 
+// Update error analysis for Python
+const ERROR_ANALYSIS_PROMPT = `As a Python debugging assistant, analyze this error:
+1. Identify Python-specific syntax or runtime issues
+2. Suggest Python-based solutions
+3. Explain common Python pitfalls
+4. Provide idiomatic Python fixes`;
+
 /**
  * Creates an "Ask Chat" button when there's a compilation error
  * @param {string} errorMessage - The error message to add to chat

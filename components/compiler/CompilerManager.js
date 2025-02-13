@@ -1,8 +1,7 @@
 /**
  * Compiler Manager Component
  * 
- * Manages code compilation and execution through the Judge0 API.
- * Handles submission of code, tracking execution status, and processing results.
+ * Manages code execution through the Judge0 API.
  */
 
 import * as EditorManager from "../editor/EditorManager.js";
@@ -248,10 +247,19 @@ function sendRequest(data, flavor, languageId) {
  * Runs the code in the editor
  */
 export function run() {
-    if (EditorManager.getSourceValue().trim() === "") {
-        showError("Error", "Source code can't be empty!");
+    const sourceValue = EditorManager.getSourceValue();
+    if (sourceValue.trim() === "") {
         return;
     }
+
+    const languageConfig = LanguageManager.getLanguageConfig();
+    
+    // Create submission object
+    const submission = {
+        source_code: sourceValue,
+        language_id: languageConfig.language_id,
+        stdin: ""
+    };
 
     $runBtn.addClass("disabled");
     EditorManager.setStdoutValue("");
@@ -260,40 +268,27 @@ export function run() {
     let x = layout.root.getItemsById("stdout")[0];
     x.parent.header.parent.setActiveContentItem(x);
 
-    let sourceValue = encode(EditorManager.getSourceValue());
-    let languageId = LanguageManager.getSelectedLanguageId();
-    let flavor = LanguageManager.getSelectedLanguageFlavor();
-
-    if (languageId === 44) {
-        sourceValue = EditorManager.getSourceValue();
-    }
-
-    let data = {
-        source_code: sourceValue,
-        language_id: languageId,
-        stdin: "",
-        redirect_stderr_to_stdout: true
-    };
+    let flavor = languageConfig.flavor;
 
     // Handle SQLite specific requirements
-    if (languageId === 82) {
+    if (languageConfig.language_id === 82) {
         if (!sqliteAdditionalFiles) {
             $.ajax({
                 url: `./data/additional_files_zip_base64.txt`,
                 contentType: "text/plain",
                 success: function (responseData) {
                     sqliteAdditionalFiles = responseData;
-                    data["additional_files"] = sqliteAdditionalFiles;
-                    sendRequest(data, flavor, languageId);
+                    submission["additional_files"] = sqliteAdditionalFiles;
+                    sendRequest(submission, flavor, languageConfig.language_id);
                 },
                 error: handleRunError
             });
         } else {
-            data["additional_files"] = sqliteAdditionalFiles;
-            sendRequest(data, flavor, languageId);
+            submission["additional_files"] = sqliteAdditionalFiles;
+            sendRequest(submission, flavor, languageConfig.language_id);
         }
     } else {
-        sendRequest(data, flavor, languageId);
+        sendRequest(submission, flavor, languageConfig.language_id);
     }
 }
 

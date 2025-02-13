@@ -186,6 +186,7 @@ chatStyles.textContent = `
         border-radius: 4px;
         max-width: 85%;        /* Prevents messages from being too wide */
         word-break: break-word; /* Handles long words */
+        color: #ffffff;  /* Add this line to make text white */
     }
     
     .composer-user-message {
@@ -976,7 +977,7 @@ function createReviewModal(originalCode, proposedCode) {
     // Initialize the original code editor (left side)
     const originalEditor = monaco.editor.create(originalEditorDiv, {
         value: originalCode,
-        language: 'javascript',
+        language: 'python',
         theme: 'vs-dark',
         readOnly: true,                  // Prevent editing of original code
         minimap: { enabled: true },      // Show minimap for navigation
@@ -1031,7 +1032,7 @@ function createReviewModal(originalCode, proposedCode) {
     // Initialize the proposed changes editor (right side)
     const proposedEditor = monaco.editor.create(proposedEditorDiv, {
         value: diffView.join('\n'),      // Show the diff view
-        language: 'javascript',
+        language: 'python',
         theme: 'vs-dark',
         readOnly: true,                  // Prevent editing in review mode
         minimap: { enabled: true },
@@ -1048,7 +1049,7 @@ function createReviewModal(originalCode, proposedCode) {
     // Initialize the inline editor with the same diff view
     inlineEditor = monaco.editor.create(inlineEditorDiv, {
         value: diffView.join('\n'),
-        language: 'javascript',
+        language: 'python',
         theme: 'vs-dark',
         readOnly: true,
         minimap: { enabled: true },

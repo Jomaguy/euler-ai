@@ -1,5 +1,4 @@
 // Editor Manager for handling Monaco editor instances and configurations
-import { getEditorLanguageMode } from "../../core/editor/EditorLanguages.js";
 import * as CodeChatButton from "../chat/CodeChatButton.js";
 import * as CodeCompletionManager from "../codeCompletion/CodeCompletionManager.js";
 
@@ -30,7 +29,7 @@ export function initializeEditors(layout) {
             automaticLayout: true,
             scrollBeyondLastLine: true,
             readOnly: state.readOnly,
-            language: "cpp",
+            language: "python",
             fontFamily: "JetBrains Mono",
             minimap: {
                 enabled: true
@@ -73,8 +72,8 @@ export function setFontSizeForAllEditors(newFontSize) {
     descriptionEditor.updateOptions({ fontSize });
 }
 
-export function setEditorLanguage(languageMode) {
-    monaco.editor.setModelLanguage(sourceEditor.getModel(), languageMode);
+export function setLanguage() {
+    monaco.editor.setModelLanguage(sourceEditor.getModel(), 'python');
 }
 
 export function getSourceValue() {

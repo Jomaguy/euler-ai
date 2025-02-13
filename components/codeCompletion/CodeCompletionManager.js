@@ -211,28 +211,13 @@ const rateLimiter = new RateLimiter(CONFIG.rateLimit.maxRequests, CONFIG.rateLim
 /**
  * Analyzes code indentation based on language
  * @param {string} beforeCursor - Text before cursor
- * @param {string} language - Programming language ('python', 'cpp', or 'java')
  * @returns {Object} Indentation info with properties:
  *   - currentIndent: The current line's indentation
  *   - syntaxIndentLevel: The calculated indentation level
  *   - indentString: The proper indentation string to use
  */
-function analyzeIndentation(beforeCursor, language = 'cpp') {
-    // Normalize language to match config keys
-    const normalizedLang = language.toLowerCase();
-    
-    // Get language settings with fallback to cpp
-    const langSettings = CONFIG.languageSettings[normalizedLang] || CONFIG.languageSettings.cpp;
-    
-    // Safety check - if no valid settings found, return default values
-    if (!langSettings) {
-        console.warn('No language settings found for', normalizedLang);
-        return {
-            currentIndent: '',
-            syntaxIndentLevel: 0,
-            indentString: '    ' // Default 4 spaces
-        };
-    }
+function analyzeIndentation(beforeCursor) {
+    const langSettings = CONFIG.languageSettings.python;
     
     const lines = beforeCursor.split('\n');
     const currentLine = lines[lines.length - 1] || '';
@@ -241,41 +226,28 @@ function analyzeIndentation(beforeCursor, language = 'cpp') {
     let syntaxIndentLevel = 0;
     let shouldIndentNext = false;
 
-    if (normalizedLang === 'python') {
-        // Python-specific indentation rules
-        const endsWithColon = currentLine.trim().endsWith(':');
-        let controlLineIndex = lines.length - 1;
-        
-        while (controlLineIndex >= 0) {
-            const line = lines[controlLineIndex];
-            if (line.trim().endsWith(':')) {
-                syntaxIndentLevel = Math.floor(line.match(/^\s*/)[0].length / langSettings.indentSize) + 1;
-                break;
-            } else if (line.trim().length > 0) {
-                syntaxIndentLevel = Math.floor(line.match(/^\s*/)[0].length / langSettings.indentSize);
-                break;
-            }
-            controlLineIndex--;
+    // Python-specific indentation rules
+    const endsWithColon = currentLine.trim().endsWith(':');
+    let controlLineIndex = lines.length - 1;
+    
+    while (controlLineIndex >= 0) {
+        const line = lines[controlLineIndex];
+        if (line.trim().endsWith(':')) {
+            syntaxIndentLevel = Math.floor(line.match(/^\s*/)[0].length / langSettings.indentSize) + 1;
+            break;
+        } else if (line.trim().length > 0) {
+            syntaxIndentLevel = Math.floor(line.match(/^\s*/)[0].length / langSettings.indentSize);
+            break;
         }
-        shouldIndentNext = endsWithColon;
-    } else {
-        // C++ and Java indentation rules (curly brace based)
-        const blockStart = langSettings.blockStart || '{';
-        const blockEnd = langSettings.blockEnd || '}';
-        
-        const blockStarts = (beforeCursor.match(new RegExp('\\' + blockStart, 'g')) || []).length;
-        const blockEnds = (beforeCursor.match(new RegExp('\\' + blockEnd, 'g')) || []).length;
-        syntaxIndentLevel = Math.max(0, blockStarts - blockEnds);
-        shouldIndentNext = currentLine.trim().endsWith(blockStart);
+        controlLineIndex--;
     }
+    shouldIndentNext = endsWithColon;
 
-    const result = {
+    return {
         currentIndent,
         syntaxIndentLevel: shouldIndentNext ? syntaxIndentLevel + 1 : syntaxIndentLevel,
-        indentString: ' '.repeat(langSettings.indentSize || 4).repeat(syntaxIndentLevel)
+        indentString: ' '.repeat(langSettings.indentSize).repeat(syntaxIndentLevel)
     };
-    
-    return result;
 }
 
 /**
@@ -308,14 +280,13 @@ function cleanCompletion(existingCode, completion) {
  * Gets completion suggestions from Gemini
  * @param {string} text - The full text content
  * @param {number} cursorOffset - The cursor position
- * @param {string} language - Programming language (python, cpp, or java)
  * @returns {Promise<string|null>} The completion suggestion
  */
-async function getAutoComplete(text, cursorOffset, language = 'cpp') {
+async function getAutoComplete(text, cursorOffset) {
     const makeRequest = async () => {
         try {
             console.log('Attempting completion request:', {
-                language,
+                language: 'python',
                 textLength: text.length,
                 cursorOffset
             });
@@ -333,8 +304,8 @@ async function getAutoComplete(text, cursorOffset, language = 'cpp') {
             }
 
             const beforeCursor = text.substring(0, cursorOffset);
-            const indentation = analyzeIndentation(beforeCursor, language);
-            const langSettings = CONFIG.languageSettings[language] || CONFIG.languageSettings.cpp;
+            const indentation = analyzeIndentation(beforeCursor);
+            const langSettings = CONFIG.languageSettings.python;
             
             const requestBody = {
                 contents: [{
@@ -347,9 +318,9 @@ DO NOT repeat any code that comes before the ▼ marker.
 Rules:
 1. Only provide the completion part that should be inserted at the cursor
 2. Maintain indentation and formatting
-3. Use the correct syntax for ${language}
+3. Use the correct syntax for python
 4. Use ${langSettings.indentSize} spaces for indentation
-5. Follow language-specific conventions for ${language}
+5. Follow language-specific conventions for python
 
 EXISTING CODE:
 ${beforeCursor}
@@ -453,7 +424,7 @@ COMPLETE FROM HERE (▼):
             console.debug("Error context:", {
                 cursorOffset,
                 textLength: text.length,
-                language
+                language: 'python'
             });
             rateLimiter.handleFailure();
             return null;
@@ -529,9 +500,8 @@ export function initialize(editor) {
             try {
                 const text = model.getValue();
                 const cursorOffset = model.getOffsetAt(position);
-                const language = model.getLanguageId();
                 
-                const completion = await getAutoComplete(text, cursorOffset, language);
+                const completion = await getAutoComplete(text, cursorOffset);
                 if (!completion || completion.trim() === '') {
                     return { items: [] };
                 }
@@ -633,10 +603,9 @@ export function initialize(editor) {
         // Also trigger our completion
         const text = model.getValue();
         const cursorOffset = model.getOffsetAt(position);
-        const language = model.getLanguageId();
         
         // Bypass rate limiting for explicit user triggers
-        getAutoComplete(text, cursorOffset, language).then(completion => {
+        getAutoComplete(text, cursorOffset).then(completion => {
             if (completion) {
                 console.log('Received completion from Ctrl+Space:', { completion });
             }

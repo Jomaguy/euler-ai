@@ -7,14 +7,12 @@
 
 import { IS_PUTER } from "../../core/environment/PuterIntegration.js";
 import * as EditorManager from "../editor/EditorManager.js";
-import * as LanguageManager from "../language/LanguageManager.js";
 import * as CompilerManager from "../compiler/CompilerManager.js";
 import * as ChatManager from "../chat/ChatManager.js";
 import { setupComposer } from "../composer/Composer.js";
 
 // State variables
 let layout;
-let $selectLanguage;
 let $runBtn;
 let $statusLine;
 
@@ -90,36 +88,35 @@ const layoutConfig = {
 };
 
 // Default content
-export const DEFAULT_SOURCE = `# Project Euler - Problem 1
-# Find the sum of all multiples of 3 or 5 below 1000
-
-def solve():
-    # Your code here
-    pass
-
-result = solve()
-print(result)`;
-
-export const DEFAULT_DESCRIPTION = `# Multiples of 3 or 5
-
-## Problem 1
-
-If we list all the natural numbers below 10 that are multiples of 3 or 5, we get 3, 5, 6 and 9. The sum of these multiples is 23.
-
-Find the sum of all the multiples of 3 or 5 below 1000.`;
-
-export const DEFAULT_LANGUAGE_ID = 25; // Python for ML (3.11.2)
+export const DEFAULT_LANGUAGE_ID = 25; // Python 3.11.2 (only supported language)
 
 /**
  * Sets default values for editors and status
  */
-function setDefaults() {
+async function setDefaults() {
+    // Get problem ID from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const problemId = urlParams.get('problem') || '1';
+    
+    // Load problem data
+    const problem = await loadProblem(problemId);
+    if (!problem) {
+        return;
+    }
+
+    // Update page title with problem info
+    document.title = `Euler.ai - Problem ${problem.id}: ${problem.title}`;
+    
     EditorManager.setFontSizeForAllEditors(EditorManager.getFontSize());
-    EditorManager.setSourceValue(DEFAULT_SOURCE);
+    EditorManager.setSourceValue(`# Project Euler - Problem ${problem.id}\n# ${problem.title}`);
     EditorManager.setStdoutValue("");
-    EditorManager.setDescriptionValue(DEFAULT_DESCRIPTION);
+    EditorManager.setDescriptionValue(`# ${problem.title}\n\n## Problem ${problem.id}\n\n${problem.description}`);
+    
+    ChatManager.updateProblemContext(problem);
+    
     $statusLine.html("");
-    LanguageManager.loadSelectedLanguage();
+    // Always use Python
+    EditorManager.setLanguage('python');
 }
 
 /**
@@ -164,15 +161,6 @@ export async function initialize() {
     });
 
     refreshSiteContentHeight();
-
-    // Initialize language selection
-    $selectLanguage = $("#select-language");
-    LanguageManager.initialize();
-    try {
-        await LanguageManager.loadLanguages();
-    } catch (error) {
-        console.error("Failed to load languages:", error);
-    }
 
     // Initialize run button and status line
     $runBtn = $("#run-btn");
@@ -252,5 +240,26 @@ export async function initialize() {
         puter.ui.onLaunchedWithItems(async function (items) {
             // Disabled
         });
+    }
+}
+
+// Add new problem loading functionality
+async function loadProblem(problemId) {
+    try {
+        const response = await fetch(`/data/problems/problem${problemId}.json`);
+        if (!response.ok) {
+            throw new Error(`Problem ${problemId} not found`);
+        }
+        const problem = await response.json();
+        return problem;
+    } catch (error) {
+        console.error('Error loading problem:', error);
+        // Add better error handling
+        EditorManager.setDescriptionValue(`# Error Loading Problem\n\nUnable to load Problem ${problemId}. Redirecting to Problem 1...`);
+        // Redirect to problem 1 after a short delay
+        setTimeout(() => {
+            window.location.href = 'editor.html?problem=1';
+        }, 2000);
+        return null;
     }
 } 

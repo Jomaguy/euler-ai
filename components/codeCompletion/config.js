@@ -29,25 +29,13 @@ export const CodeCompletionConfig = {
         consecutiveFailuresBeforeBackoff: 3
     },
 
-    // Language-specific settings
+    // Language-specific settings - Python only
     languageSettings: {
         python: {
             indentSize: 4,
             autoIndentTriggers: [':'],
             blockStart: ':',
             blockEnd: ''
-        },
-        cpp: {
-            indentSize: 4,
-            autoIndentTriggers: ['{'],
-            blockStart: '{',
-            blockEnd: '}'
-        },
-        java: {
-            indentSize: 4,
-            autoIndentTriggers: ['{'],
-            blockStart: '{',
-            blockEnd: '}'
         }
     }
 }; 

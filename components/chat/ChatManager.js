@@ -11,12 +11,112 @@ const GEMINI_API_KEY = "AIzaSyAaS8BakefjrV1T3H3obrkQPJwmFjRpWFs";
 
 // State variables
 let layout;
-let conversationHistory = [
-    {
-        role: 'system',
-        content: 'You are a programming tutor who uses the Socratic method. Keep your responses concise and focused. Instead of giving direct answers, guide users through problems with targeted questions. Limit explanations to 2-3 sentences when possible. When reviewing code, ask specific questions about potential issues or improvements. Your goal is to help users discover solutions through self-reflection and critical thinking.'
+
+// Separate context management
+let currentProblem = null;  // Store current problem context
+const MAX_MESSAGES = 4;     // Store last 4 messages for context window
+let messageHistory = [];    // Store recent messages
+
+// Initial system prompt without problem context
+const SYSTEM_PROMPT = `You are a Python programming tutor helping users solve Project Euler problems. 
+
+Your role is to:
+1. Guide users in writing Python code to solve the problem
+2. Use the Socratic method - ask questions to lead users to solutions
+3. When reviewing code, suggest Python-specific improvements
+4. Encourage Python best practices and efficient algorithms
+5. Help debug Python code when users encounter errors
+
+Keep responses concise and focused on Python implementation. Instead of giving direct answers, guide users with targeted questions about their code and approach.`;
+
+// Add this at the beginning of the file, after the imports
+const chatStyles = document.createElement('style');
+chatStyles.textContent = `
+    .chat-container {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: #1e1e1e;
     }
-];
+
+    .chat-messages {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .message {
+        padding: 8px 12px;
+        border-radius: 4px;
+        max-width: 85%;
+        color: #ffffff;  /* Make text white */
+    }
+
+    .user-message {
+        background: #0e639c;
+        align-self: flex-end;
+    }
+
+    .ai-message {
+        background: #2d2d2d;
+        align-self: flex-start;
+    }
+
+    .error {
+        background: #4d2d2d;
+        color: #f44336;
+        align-self: center;
+    }
+
+    .chat-input-container {
+        padding: 10px;
+        border-top: 1px solid #3c3c3c;
+        background: #1e1e1e;
+    }
+
+    .chat-input {
+        width: 100%;
+        min-height: 40px;
+        max-height: 200px;
+        padding: 8px;
+        background: #2d2d2d;
+        color: #d4d4d4;
+        border: 1px solid #3c3c3c;
+        border-radius: 4px;
+        font-family: inherit;
+        resize: none;
+        margin-bottom: 8px;
+    }
+
+    .button-row {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .chat-submit {
+        padding: 6px 12px;
+        background: #0e639c;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .chat-submit:hover {
+        background: #1177bb;
+    }
+
+    .chat-submit:disabled {
+        background: #4d4d4d;
+        cursor: not-allowed;
+    }
+`;
+
+// Add this line right after the style definition
+document.head.appendChild(chatStyles);
 
 /**
  * Creates the chat UI components
@@ -74,6 +174,41 @@ function createChatUI(container) {
 }
 
 /**
+ * Builds the context for the API call
+ * @param {string} currentMessage - The new message to send
+ * @returns {Array} The full context array for the API
+ */
+function buildApiContext(currentMessage) {
+    const context = [];
+    
+    // Add system prompt with problem context if we have a problem
+    if (currentProblem) {
+        context.push({
+            role: 'user',  // Changed from 'system' to 'user' as Gemini expects
+            parts: [{
+                text: `Context: You are a programming tutor helping with Project Euler Problem ${currentProblem.id}: ${currentProblem.title}.\n\nProblem: ${currentProblem.description}\n\n${SYSTEM_PROMPT}`
+            }]
+        });
+    }
+    
+    // Add recent message history - Gemini only accepts 'user' and 'model' roles
+    messageHistory.forEach(msg => {
+        context.push({
+            role: msg.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: msg.content }]
+        });
+    });
+    
+    // Add current message
+    context.push({
+        role: 'user',
+        parts: [{ text: currentMessage }]
+    });
+    
+    return context;
+}
+
+/**
  * Sends a message to the Gemini API
  */
 async function sendMessage() {
@@ -93,7 +228,7 @@ async function sendMessage() {
     addMessageToChat(`User: ${message}`, 'user-message');
     
     // Add user message to conversation history
-    conversationHistory.push({ role: 'user', content: message });
+    messageHistory.push({ role: 'user', content: message });
 
     // Clear input and reset
     input.value = '';
@@ -110,10 +245,7 @@ async function sendMessage() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                contents: [{
-                    role: 'user',
-                    parts: [{ text: message }]
-                }]
+                contents: buildApiContext(message)
             })
         });
 
@@ -125,17 +257,14 @@ async function sendMessage() {
         const aiResponse = data.candidates[0].content.parts[0].text;
         
         // Add AI response to conversation history
-        conversationHistory.push({ role: 'assistant', content: aiResponse });
+        messageHistory.push({ role: 'assistant', content: aiResponse });
         
         // Add AI response to chat
         addMessageToChat(`Gemini: ${aiResponse}`, 'ai-message');
 
         // Limit conversation history
-        if (conversationHistory.length > 11) {
-            conversationHistory = [
-                conversationHistory[0],
-                ...conversationHistory.slice(-10)
-            ];
+        if (messageHistory.length > MAX_MESSAGES) {
+            messageHistory = messageHistory.slice(-MAX_MESSAGES);
         }
     } catch (error) {
         addMessageToChat(`Error: ${error.message}`, 'error');
@@ -231,4 +360,10 @@ export function addErrorToChat(errorMessage) {
         // Focus the chat
         focusChat();
     }
+}
+
+// Update problem context function
+export function updateProblemContext(problem) {
+    currentProblem = problem;  // Store problem
+    messageHistory = [];       // Reset message history with new problem
 } 

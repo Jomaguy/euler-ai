@@ -11,6 +11,13 @@ import * as Composer from "../composer/Composer.js";
 let currentSelection = '';
 let addToChatBox = null;
 
+// Update the system prompt to be Python-specific
+const SYSTEM_PROMPT = `You are a Python programming assistant. Help users write and improve their Python code for solving Project Euler problems. Focus on:
+1. Python best practices and idioms
+2. Efficient algorithms
+3. Clean, readable code
+4. Mathematical insights when relevant`;
+
 /**
  * Creates and sets up the "Add to Chat" button functionality
  * @param {monaco.editor.IStandaloneCodeEditor} editor - The Monaco editor instance
