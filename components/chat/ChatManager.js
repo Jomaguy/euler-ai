@@ -219,7 +219,10 @@ async function sendMessage() {
     const message = input.value.trim();
     if (!message) return;
 
+    console.log('Attempting to send message:', message); // Debug log
+
     if (!GEMINI_API_KEY) {
+        console.error('API Key missing'); // Debug log
         addMessageToChat('Error: Gemini API key not found', 'error');
         return;
     }
@@ -239,21 +242,33 @@ async function sendMessage() {
         submitButton.disabled = true;
         submitButton.textContent = 'Thinking...';
         
+        const apiContext = buildApiContext(message);
+        console.log('API Context:', apiContext); // Debug log
+
+        const requestBody = {
+            contents: apiContext
+        };
+        console.log('Request Body:', requestBody); // Debug log
+
         const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                contents: buildApiContext(message)
-            })
+            body: JSON.stringify(requestBody)
         });
 
+        console.log('Response status:', response.status); // Debug log
+        
         if (!response.ok) {
-            throw new Error(`API Error: ${response.statusText}`);
+            const errorText = await response.text();
+            console.error('API Error Response:', errorText); // Debug log
+            throw new Error(`API Error: ${response.status} - ${errorText}`);
         }
 
         const data = await response.json();
+        console.log('API Response data:', data); // Debug log
+
         const aiResponse = data.candidates[0].content.parts[0].text;
         
         // Add AI response to conversation history
@@ -267,6 +282,7 @@ async function sendMessage() {
             messageHistory = messageHistory.slice(-MAX_MESSAGES);
         }
     } catch (error) {
+        console.error('Error in sendMessage:', error); // Debug log
         addMessageToChat(`Error: ${error.message}`, 'error');
     } finally {
         submitButton.disabled = false;

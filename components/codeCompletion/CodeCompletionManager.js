@@ -299,7 +299,7 @@ async function getAutoComplete(text, cursorOffset) {
             }
 
             if (!rateLimiter.addRequest(text)) {
-                console.log('Request not added due to duplicate or rate limiting');
+                console.log('Request not added due to rate limiting');
                 return null;
             }
 
@@ -331,42 +331,19 @@ COMPLETE FROM HERE (▼):
                 }]
             };
 
-            let response;
-            try {
-                response = await fetch(`${CONFIG.apiEndpoint}?key=${CONFIG.apiKey}`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(requestBody)
-                });
-            } catch (fetchError) {
-                console.error('Fetch error:', fetchError);
-                rateLimiter.handleFailure();
-                return null;
-            }
+            const response = await fetch(`${CONFIG.apiEndpoint}?key=${CONFIG.apiKey}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(requestBody)
+            });
 
             if (!response.ok) {
-                const errorData = await response.text().catch(() => 'No error details available');
-                console.error('API Response:', {
+                console.log("API Response:", {
                     status: response.status,
-                    statusText: response.statusText,
-                    errorData: errorData
+                    statusText: response.statusText
                 });
-                
-                rateLimiter.handleFailure();
-                
-                if (response.status === 429) {
-                    const waitTime = rateLimiter.getTimeUntilNextRequest();
-                    console.debug(`Rate limit reached. Waiting ${Math.ceil(waitTime/1000)}s before next request.`);
-                    return null;
-                }
-                
-                if (response.status === 500) {
-                    console.warn('Gemini API internal error. Simplifying request...');
-                    return null;
-                }
-                
                 return null;
             }
 
@@ -420,18 +397,11 @@ COMPLETE FROM HERE (▼):
 
             return completion;
         } catch (error) {
-            console.error("Autocomplete error:", error);
-            console.debug("Error context:", {
-                cursorOffset,
-                textLength: text.length,
-                language: 'python'
-            });
-            rateLimiter.handleFailure();
+            console.error("Request error:", error);
             return null;
         }
     };
 
-    // Add request to queue with context information
     return rateLimiter.addToQueue(makeRequest, cursorOffset, text);
 }
 
@@ -493,6 +463,12 @@ export function initialize(editor) {
 
     // Clean up any existing providers
     cleanup();
+
+    // Add status indicator
+    const statusElement = document.createElement('div');
+    statusElement.className = 'completion-status';
+    statusElement.style.display = 'none';
+    document.body.appendChild(statusElement);
 
     // Register inline completion provider
     const inlineProvider = monaco.languages.registerInlineCompletionsProvider('*', {
@@ -722,6 +698,25 @@ export function initialize(editor) {
         cleanup();
         changeListener.dispose();
     });
+
+    // Add status indicator styles
+    const styles = document.createElement('style');
+    styles.textContent = `
+        .completion-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #2d2d2d;
+            color: #d4d4d4;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            z-index: 1000;
+            opacity: 0.8;
+        }
+    `;
+    document.head.appendChild(styles);
 }
 
 // Utility function for debouncing

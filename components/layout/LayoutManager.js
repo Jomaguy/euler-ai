@@ -113,6 +113,7 @@ async function setDefaults() {
     EditorManager.setDescriptionValue(`# ${problem.title}\n\n## Problem ${problem.id}\n\n${problem.description}`);
     
     ChatManager.updateProblemContext(problem);
+    CompilerManager.updateProblemContext(problem);
     
     $statusLine.html("");
     // Always use Python
@@ -199,6 +200,12 @@ export async function initialize() {
 
     [$runBtn].forEach(btn => {
         btn.attr("data-content", `${superKey}${btn.attr("data-content")}`);
+    });
+
+    // Initialize return button
+    const $returnBtn = $("#return-btn");
+    $returnBtn.click(() => {
+        window.location.href = 'index.html';
     });
 
     // Initialize Monaco editor and layout

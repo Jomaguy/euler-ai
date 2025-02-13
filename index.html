@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,82 +16,109 @@
     
     <style>
         body {
+            background-color: #E8E8E8;
+            color: #8B6B4C;
             margin: 0;
-            padding: 0;
-            font-family: 'JetBrains Mono', monospace;
-            background: #1e1e1e;
-            color: #d4d4d4;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         }
         
         .welcome-container {
             max-width: 800px;
-            margin: 0 auto;
-            padding: 40px 20px;
+            margin: 20px auto;
+            padding: 0 20px;
         }
         
         .header {
             text-align: center;
-            margin-bottom: 40px;
+            padding: 15px 0;
+            margin-bottom: 20px;
         }
         
         .header h1 {
-            font-size: 2.5em;
-            color: #0e639c;
-            margin-bottom: 10px;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            color: #8B6B4C;
+            margin: 0;
+            font-size: 3em;
+            letter-spacing: 0.5px;
         }
         
         .header p {
             font-size: 1.2em;
-            color: #888;
+            color: #666666;
+            margin: 5px 0;
         }
         
         .main-content {
-            background: #252526;
-            padding: 30px;
+            background: #FFFFFF;
+            padding: 40px 60px;
             border-radius: 8px;
             margin-bottom: 30px;
+            border: 1px solid #D3CAC1;
+            box-shadow: 0 2px 12px rgba(139, 107, 76, 0.08);
         }
         
         .problems-list {
             list-style: none;
             padding: 0;
-            margin: 20px 0;
+            margin: 0;
         }
         
         .problem-item {
-            background: #2d2d2d;
-            margin: 10px 0;
-            border-radius: 4px;
-            transition: background 0.3s;
+            background: none;
+            border: none;
+            border-bottom: 1px solid #E8E8E8;
+            margin: 0;
+            transition: background-color 0.2s ease;
+        }
+        
+        .problem-item:last-child {
+            border-bottom: none;
         }
         
         .problem-link {
-            display: block;
-            padding: 20px;
-            color: #d4d4d4;
+            display: flex;
+            align-items: center;
+            padding: 20px 15px;
+            color: #8B6B4C;
             text-decoration: none;
+            transition: all 0.2s ease;
         }
         
         .problem-link:hover {
-            background: #3d3d3d;
+            background: #F9F7F5;
+            color: #6B4C2C;
         }
         
         .problem-number {
-            color: #0e639c;
-            font-weight: bold;
-            margin-right: 10px;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            color: #8B6B4C;
+            font-size: 1.4em;
+            font-weight: 600;
+            min-width: 50px;
+            margin-right: 20px;
         }
         
         .problem-title {
-            font-size: 1.1em;
+            font-size: 1.2em;
+            color: #8B6B4C;
+            font-weight: 500;
         }
         
         .section-title {
-            color: #0e639c;
-            font-size: 1.5em;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #333;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            color: #8B6B4C;
+            font-size: 2em;
+            margin: 0 0 30px 0;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #D3CAC1;
+        }
+        
+        .welcome-text {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #666666;
+            margin-bottom: 40px;
         }
         
         /* Add these new styles */
@@ -102,20 +129,20 @@
         }
         
         .profile-icon {
-            color: #0e639c;
+            color: #8B6B4C;
             font-size: 24px;
             cursor: pointer;
             transition: color 0.3s;
         }
         
         .profile-icon:hover {
-            color: #1177bb;
+            color: #6B4C2C;
         }
         
         .tooltip {
             position: absolute;
-            background: #2d2d2d;
-            color: #d4d4d4;
+            background: #FFFFFF;
+            color: #666666;
             padding: 8px 12px;
             border-radius: 4px;
             font-size: 14px;
@@ -123,11 +150,51 @@
             top: 35px;
             white-space: nowrap;
             display: none;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 4px rgba(139, 107, 76, 0.1);
+            border: 1px solid #D3CAC1;
         }
         
         .profile-container:hover .tooltip {
             display: block;
+        }
+        
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .problem-card {
+            background-color: #FFFFFF;
+            border: 1px solid #D3CAC1;
+            border-radius: 4px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(139, 107, 76, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .problem-card:hover {
+            background-color: #F5F5F5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(139, 107, 76, 0.1);
+        }
+        
+        .problem-description {
+            color: #666666;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        a:hover {
+            color: #6B4C2C;
         }
     </style>
 </head>
@@ -137,7 +204,7 @@
         <i class="fas fa-user-circle profile-icon"></i>
         <div class="tooltip">User Profile Feature Coming Soon!</div>
     </div>
-    
+
     <div class="welcome-container">
         <div class="header">
             <h1>Euler.ai</h1>
@@ -145,7 +212,10 @@
         </div>
         
         <div class="main-content">
-            <p>Welcome to Euler.ai, where classical Project Euler problems meet modern AI assistance. Enhance your problem-solving skills with intelligent guidance and real-time code support.</p>
+            <p class="welcome-text">
+                Welcome to Euler.ai, where classical Project Euler problems meet modern AI assistance. 
+                Enhance your problem-solving skills with intelligent guidance and real-time code support.
+            </p>
             
             <h2 class="section-title">Problems</h2>
             <ul class="problems-list">

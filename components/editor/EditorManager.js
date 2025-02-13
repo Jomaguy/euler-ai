@@ -81,7 +81,12 @@ export function getSourceValue() {
 }
 
 export function setSourceValue(value) {
-    sourceEditor.setValue(value);
+    // Ensure proper line endings and encoding
+    const formattedValue = value
+        .replace(/\r\n/g, '\n')  // Normalize line endings
+        .replace(/\r/g, '\n');   // Replace any remaining \r with \n
+    
+    sourceEditor.setValue(formattedValue);
 }
 
 export function setStdoutValue(value) {

@@ -7,6 +7,10 @@
 import * as EditorManager from "../editor/EditorManager.js";
 import * as LanguageManager from "../language/LanguageManager.js";
 import * as ErrorChatButton from "../chat/ErrorChatButton.js";
+import { SuccessModal } from "../modal/SuccessModal.js";
+
+// Initialize success modal
+const successModal = new SuccessModal();
 
 // Constants
 const INITIAL_WAIT_TIME_MS = 0;
@@ -24,6 +28,7 @@ let timeStart;
 let $runBtn;
 let $statusLine;
 let sqliteAdditionalFiles;
+let currentProblem = null;  // Add this to track current problem
 let layout;
 
 /**
@@ -47,19 +52,14 @@ function showHttpError(jqXHR) {
 function checkSolution(output) {
     // Convert output to number and trim whitespace
     const userAnswer = parseInt(output.trim());
-    const expectedAnswer = 233168; // Sum of multiples of 3 or 5 below 1000
     
-    if (userAnswer === expectedAnswer) {
-        // Show success modal
-        $("#judge0-site-modal #title").html("🎉 Congratulations!");
-        $("#judge0-site-modal .content").html(`
-            <div style="text-align: center; padding: 20px;">
-                <h2>Problem Solved!</h2>
-                <p>You've successfully solved Problem 1: Multiples of 3 or 5</p>
-                <p>Your answer: ${userAnswer}</p>
-            </div>
-        `);
-        $("#judge0-site-modal").modal("show");
+    if (!currentProblem || !currentProblem.answer) {
+        console.error('No problem context available');
+        return false;
+    }
+
+    if (userAnswer === parseInt(currentProblem.answer)) {
+        successModal.show(currentProblem, userAnswer);
         return true;
     }
     return false;
@@ -83,7 +83,15 @@ export function initialize(runButton, statusLine, layoutInstance) {
  * @returns {string} The base64 encoded string
  */
 function encode(str) {
-    return btoa(unescape(encodeURIComponent(str || "")));
+    try {
+        // First normalize line endings
+        const normalized = str.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+        // Then encode
+        return btoa(unescape(encodeURIComponent(normalized || "")));
+    } catch (e) {
+        console.error("Encoding error:", e);
+        return btoa(str || "");  // Fallback
+    }
 }
 
 /**
@@ -126,15 +134,32 @@ function handleResult(data) {
     const tat = Math.round(performance.now() - timeStart);
     console.log(`It took ${tat}ms to get submission result.`);
 
+    // Debug output
+    console.log("API Response:", data);
+    console.log("Response Status:", data.status);
+    
     const status = data.status;
     const stdout = decode(data.stdout);
+    const stderr = decode(data.stderr);
     const compileOutput = decode(data.compile_output);
+    
+    // Debug decoded outputs
+    console.log("Stdout:", stdout);
+    console.log("Stderr:", stderr);
+    console.log("Compile Output:", compileOutput);
+    
+    // Add this debug log
+    console.log("Current Problem:", currentProblem);
+    
     const time = (data.time === null ? "-" : data.time + "s");
     const memory = (data.memory === null ? "-" : data.memory + "KB");
 
     $statusLine.html(`${status.description}, ${time}, ${memory} (TAT: ${tat}ms)`);
 
-    const output = [compileOutput, stdout].join("\n").trim();
+    const output = [compileOutput, stdout, stderr].filter(Boolean).join("\n").trim();
+    
+    // Debug final output
+    console.log("Final Output:", output);
 
     EditorManager.setStdoutValue(output);
 
@@ -233,7 +258,10 @@ function sendRequest(data, flavor, languageId) {
         type: "POST",
         contentType: "application/json",
         data: JSON.stringify(data),
-        headers: AUTH_HEADERS,
+        headers: {
+            ...AUTH_HEADERS,
+            'Accept': 'application/json'
+        },
         success: function (data, textStatus, request) {
             console.log(`Your submission token is: ${data.token}`);
             let region = request.getResponseHeader('X-Judge0-Region');
@@ -254,11 +282,13 @@ export function run() {
 
     const languageConfig = LanguageManager.getLanguageConfig();
     
-    // Create submission object
+    // Create submission object with proper encoding
     const submission = {
-        source_code: sourceValue,
+        source_code: encode(sourceValue),  // Make sure to encode the source code
         language_id: languageConfig.language_id,
-        stdin: ""
+        stdin: "",
+        redirect_stderr_to_stdout: true,
+        base64_encoded: true  // Add this to indicate we're sending base64 encoded content
     };
 
     $runBtn.addClass("disabled");
@@ -326,4 +356,12 @@ export function handleError(detail) {
 export function handleSuccess(detail) {
     // Check if the solution is correct
     checkSolution(detail);
+}
+
+/**
+ * Updates the current problem context
+ * @param {Object} problem - The problem data
+ */
+export function updateProblemContext(problem) {
+    currentProblem = problem;
 } 

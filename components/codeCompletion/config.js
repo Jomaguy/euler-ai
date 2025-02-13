@@ -37,5 +37,20 @@ export const CodeCompletionConfig = {
             blockStart: ':',
             blockEnd: ''
         }
+    },
+
+    // Retry Configuration
+    retry: {
+        maxAttempts: 3,
+        backoffMs: 1000,  // Start with 1 second
+        maxBackoffMs: 5000,  // Max 5 seconds
+        jitterMs: 500  // Add random jitter up to 500ms
+    },
+    
+    // Error messages
+    errorMessages: {
+        overloaded: "Code completion temporarily unavailable (API overloaded)",
+        maxRetries: "Code completion unavailable after retries",
+        generic: "Code completion error"
     }
 }; 
