@@ -41,6 +41,18 @@
     <link type="text/css" rel="stylesheet" href="css/ide.css">
     <link type="text/css" rel="stylesheet" href="css/site.css">
 
+    <style>
+        #return-btn:hover {
+            background: #F5F5F5 !important;
+        }
+        #run-btn:hover {
+            background: #7A5C3E !important;
+        }
+        #judge0-theme-toggle-btn:hover {
+            color: #7A5C3E !important;
+        }
+    </style>
+
     <title>Euler.ai</title>
     <meta name="title" content="Euler.ai">
     <meta name="description" content="AI-powered code editor and compiler">
@@ -70,28 +82,36 @@
 </head>
 
 <body>
-    <div id="judge0-site-navigation" class="ui top fixed borderless menu">
+    <div id="judge0-site-navigation" class="ui top fixed menu" style="background: #FFFFFF; border-bottom: 1px solid #D3CAC1; height: 60px;">
         <div class="item">
-            <span style="font-weight: bold; font-size: 1.2em;">Euler.ai</span>
+            <span style="font-family: Georgia, 'Times New Roman', Times, serif; font-weight: bold; font-size: 1.5em; color: #8B6B4C;">Euler.ai</span>
         </div>
         <div class="item">
-            <button id="return-btn" class="ui labeled icon button" data-content="Return to Home">
+            <button id="return-btn" class="ui labeled icon button" style="background: #FFFFFF; color: #8B6B4C; border: 1px solid #D3CAC1;">
                 <i class="arrow left icon"></i>Return
             </button>
         </div>
         <div class="item">
-            <button id="run-btn" class="ui primary labeled icon button" data-content="+↵" data-position="bottom center">
+            <button id="run-btn" class="ui labeled icon button" style="background: #8B6B4C; color: #FFFFFF; border: none;">
                 <i class="play icon"></i>Run Code
             </button>
         </div>
         <div class="right menu">
-            <div id="judge0-theme-toggle-btn" class="icon link item" data-content="">
+            <div id="judge0-theme-toggle-btn" class="icon link item" style="color: #8B6B4C;">
                 <i id="judge0-theme-toggle-btn-icon" class="sun icon"></i>
             </div>
         </div>
     </div>
 
-    <div id="judge0-site-content"></div>
+    <div id="judge0-site-content">
+        <!-- This div is populated by Golden Layout with: -->
+        <!-- 1. Problem Description (30% height) -->
+        <!-- 2. Source Code Editor (40% height) -->
+        <!-- 3. Output Window (30% height) -->
+        <!-- And a right sidebar (30% width) with: -->
+        <!-- - Chat -->
+        <!-- - Composer -->
+    </div>
 
     <div id="judge0-site-modal" class="ui modal">
         <div class="header">

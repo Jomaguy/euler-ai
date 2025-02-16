@@ -33,7 +33,11 @@ export function initializeEditors(layout) {
             fontFamily: "JetBrains Mono",
             minimap: {
                 enabled: true
-            }
+            },
+            theme: "vs-light",
+            fontSize: 14,
+            lineHeight: 1.5,
+            padding: { top: 20 }
         });
 
         // Initialize code chat button

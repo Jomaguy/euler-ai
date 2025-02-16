@@ -173,3 +173,17 @@
 .add-to-chat-box:hover {
     background-color: #005999 !important;
 }
+
+/* Add these styles to match index page */
+.judge0-site-navigation {
+    /* Match navigation styling from index page */
+    background: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Update editor container styling */
+#judge0-site-content {
+    /* Match content area styling */
+    background: #f5f5f5;
+    padding: 20px;
+}

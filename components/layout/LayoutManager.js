@@ -212,7 +212,7 @@ export async function initialize() {
     require(["vs/editor/editor.main"], function () {
         layout = new GoldenLayout(layoutConfig, $("#judge0-site-content"));
         
-        // Initialize all managers
+        // Initialize editors
         EditorManager.initializeEditors(layout);
         ChatManager.initialize(layout);
         
